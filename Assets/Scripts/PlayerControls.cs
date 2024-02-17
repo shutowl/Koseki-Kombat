@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PlayerControls : MonoBehaviour
 {
@@ -42,7 +43,6 @@ public class PlayerControls : MonoBehaviour
     public float hitstunFlashRate = 0.2f;
     float hitstunFlashTimer = 0f;
     bool flashOn = false;
-    int timesHit = 0;
 
     [Header("Hitbox")]
     public float hitboxSize = 0.35f;
@@ -149,8 +149,17 @@ public class PlayerControls : MonoBehaviour
             if (inputActions.Player.Block.WasPressedThisFrame())
             {
                 curState = playerState.blocking;
-                blockDurationTimer = blockDuration;
                 blockIdleTimer = blockIdleDuration;
+
+                damagediFramesCounter = blockDuration;
+                hitstunFlashTimer = hitstunFlashRate;
+                flashOn = false;
+            }
+
+            //Damaged IFrames after knockback
+            if (damagediFramesCounter <= 0)
+            {
+                hitbox.GetComponent<BoxCollider2D>().enabled = true;
             }
         }
 
@@ -159,12 +168,6 @@ public class PlayerControls : MonoBehaviour
         {
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
 
-            if(blockDurationTimer >= blockDuration - 0.05f) //Prevent jumping and blocking
-            {
-                rb.velocity = Vector2.zero;
-            }
-
-            blockDurationTimer -= Time.deltaTime;
             blockIdleTimer -= Time.deltaTime;
 
             if(blockIdleTimer <= 0)
@@ -187,6 +190,11 @@ public class PlayerControls : MonoBehaviour
             else
             {
                 rb.velocity = new Vector2(Mathf.Lerp(0, knockbackStrength, 1 - Mathf.Pow(1 - (hitstunCounter / hitstun), 3)) * -direction, rb.velocity.y);
+            }
+
+            if (hitstunCounter <= 0)
+            {
+                curState = playerState.moving;
             }
         }
 
@@ -226,6 +234,36 @@ public class PlayerControls : MonoBehaviour
             jumpBufferCounter -= Time.deltaTime;
         else
             bufferJump = false;
+
+        if (hitstunCounter >= 0)
+        {
+            hitstunCounter -= Time.deltaTime;
+        }
+        if (damagediFramesCounter > 0)
+        {
+            damagediFramesCounter -= Time.deltaTime;
+            hitbox.GetComponent<BoxCollider2D>().enabled = false;
+
+            //flash
+            hitstunFlashTimer -= Time.deltaTime;
+            if (hitstunFlashTimer <= 0)
+            {
+                if (flashOn)
+                {
+                    GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+                }
+                else
+                {
+                    GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.5f);
+                }
+                flashOn = !flashOn;
+                hitstunFlashTimer = hitstunFlashRate;
+            }
+        }
+        else
+        {
+            GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+        }
     }
 
     void FixedUpdate()
@@ -250,6 +288,19 @@ public class PlayerControls : MonoBehaviour
         }
     }
 
+    public void SetDamageState(float hitstun)   //used for variable hitstun lengths
+    {
+        StopAllCoroutines();
 
-    
+        rb.velocity = Vector2.zero;
+        curState = playerState.hitstun;
+        hitstunCounter = hitstun;
+        this.hitstun = hitstun;
+        damagediFramesCounter = damagediFrames + hitstun;
+        hitstunFlashTimer = hitstunFlashRate;
+        flashOn = false;
+
+        //AudioManager.Instance.Play("Damaged");
+    }
+
 }
