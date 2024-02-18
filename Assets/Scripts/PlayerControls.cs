@@ -52,8 +52,17 @@ public class PlayerControls : MonoBehaviour
     [Header("Block")]
     public float blockDuration = 2f;        //Duration player in invulnerable for
     public float blockIdleDuration = 0.5f;  //Duration player stays still for
-    float blockDurationTimer;
     float blockIdleTimer;
+    public Image[] blockCharges;
+    public float blockRechargeDuration = 20f;
+    [SerializeField] int blocksLeft = 3;
+
+    [Header("Shoot")]
+    public GameObject bullet;
+    bool shooting = false;
+    public float fireRate = 0.25f;
+    float fireTimer = 0f;
+    bool aimUp = false;
 
     [Header("Other")]
     public ParticleSystem dust;
@@ -78,6 +87,11 @@ public class PlayerControls : MonoBehaviour
 
         respawnPoint = transform.position;
         paused = false;
+
+        blockCharges[0] = GameObject.Find("Block1").GetComponent<Image>();
+        blockCharges[1] = GameObject.Find("Block2").GetComponent<Image>();
+        blockCharges[2] = GameObject.Find("Block3").GetComponent<Image>();
+
     }
 
     void Update()
@@ -148,12 +162,25 @@ public class PlayerControls : MonoBehaviour
             //Block
             if (inputActions.Player.Block.WasPressedThisFrame())
             {
-                curState = playerState.blocking;
-                blockIdleTimer = blockIdleDuration;
+                if(blocksLeft > 0)
+                {
+                    float lastFillAmount = 0f;
+                    if (blocksLeft < 3)
+                    {
+                        lastFillAmount = blockCharges[blocksLeft].fillAmount;
+                        blockCharges[blocksLeft].fillAmount = 0f;
+                    }
+                    blockCharges[blocksLeft - 1].fillAmount = lastFillAmount;
+                    blocksLeft--;
+                    curState = playerState.blocking;
+                    blockIdleTimer = blockIdleDuration;
 
-                damagediFramesCounter = blockDuration;
-                hitstunFlashTimer = hitstunFlashRate;
-                flashOn = false;
+                    damagediFramesCounter = blockDuration;
+                    hitstunFlashTimer = hitstunFlashRate;
+                    flashOn = false;
+                }
+
+                shooting = false;
             }
 
             //Damaged IFrames after knockback
@@ -161,6 +188,18 @@ public class PlayerControls : MonoBehaviour
             {
                 hitbox.GetComponent<BoxCollider2D>().enabled = true;
             }
+
+            //Shoot
+            if (inputActions.Player.Shoot.WasPressedThisFrame())
+            {
+                shooting = true;
+            }
+            if (inputActions.Player.Shoot.WasReleasedThisFrame())
+            {
+                fireTimer = fireRate;
+                shooting = false;
+            }
+
         }
 
         //-----BLOCKING-------
@@ -216,6 +255,31 @@ public class PlayerControls : MonoBehaviour
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
         }
 
+        //-----SHOOTING-----
+        if (shooting)
+        {
+            if(fireTimer > 0)
+            {
+                fireTimer -= Time.deltaTime;
+            }
+            else
+            {
+                //Fire Bullet
+                GameObject tempBullet = Instantiate(bullet, transform.position, Quaternion.identity);
+
+                if (aimUp)
+                {
+                    tempBullet.GetComponent<PlayerBullet>().SetDirection(0, 1);
+                }
+                else
+                {
+                    tempBullet.GetComponent<PlayerBullet>().SetDirection(direction, 0);
+                }
+
+                fireTimer = fireRate;
+            }
+        }
+
         //-----TIMERS-----
 
         //Coyote Time
@@ -264,6 +328,30 @@ public class PlayerControls : MonoBehaviour
         {
             GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
         }
+
+        //Block
+        if(blocksLeft <= 2)
+        {
+            if(blockCharges[blocksLeft].fillAmount < 1f)
+            {
+                Mathf.Clamp01(blockCharges[blocksLeft].fillAmount += (Time.deltaTime) / blockRechargeDuration);
+            }
+            else
+            {
+                blocksLeft = Mathf.Clamp(++blocksLeft, 0, 3);
+            }
+        }
+
+        //Aim Up
+        if (inputActions.Player.Up.WasPressedThisFrame())
+        {
+            aimUp = true;
+        }
+        if (inputActions.Player.Up.WasReleasedThisFrame())
+        {
+            aimUp = false;
+        }
+
     }
 
     void FixedUpdate()
@@ -300,6 +388,7 @@ public class PlayerControls : MonoBehaviour
         hitstunFlashTimer = hitstunFlashRate;
         flashOn = false;
 
+        shooting = false;
         //AudioManager.Instance.Play("Damaged");
     }
 

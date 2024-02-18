@@ -21,6 +21,11 @@ public class MenuController : MonoBehaviour
     public GameObject mainWindow;
     public GameObject optionsWindow;
 
+    bool gameStarting = false;
+    public Image screenFade;
+    public float screenFadeDuration = 3f;
+    float screenFadeTimer;
+
 
     private InputActions input;
 
@@ -38,6 +43,8 @@ public class MenuController : MonoBehaviour
         mainWindow.SetActive(true);
         optionsWindow.SetActive(false);
 
+        gameStarting = false;
+        screenFadeTimer = screenFadeDuration;
         //Play Music
     }
 
@@ -53,7 +60,7 @@ public class MenuController : MonoBehaviour
             {
                 if(menuIndex == 0)
                 {
-                    StartGame();
+                    gameStarting = true;
                 }
                 else if(menuIndex == 1)
                 {
@@ -106,12 +113,21 @@ public class MenuController : MonoBehaviour
                 }
             }
         }
+
+        if(gameStarting && screenFadeTimer > 0)
+        {
+            screenFadeTimer -= Time.deltaTime;
+            screenFade.color = new Color(screenFade.color.r, screenFade.color.r, screenFade.color.r, screenFade.color.a + (Time.deltaTime / screenFadeDuration));
+        }
+        if(screenFadeTimer <= 0)
+        {
+            StartGame();
+        }
     }
 
 
     void StartGame()
     {
-        //Preferably want a small delay before start of game
         SceneManager.LoadScene("Arena");
     }
 

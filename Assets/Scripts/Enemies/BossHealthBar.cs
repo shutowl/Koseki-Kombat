@@ -10,11 +10,6 @@ public class BossHealthBar : MonoBehaviour
     private GameObject boss;
     RectTransform rect;
     public float rectDuration = 2f;
-    private float rectTimer = 0f;
-    private float rectTimer2 = 0f;
-    public float rectYShown;            //Y position of health bar when boss is on screen
-    public float rectYHidden;           //Y position of health bar when boss is off screen
-
 
     public Slider HPSlider;
     public TextMeshProUGUI bossNameText;
@@ -29,36 +24,17 @@ public class BossHealthBar : MonoBehaviour
 
     void Start()
     {
-        rect = GetComponent<RectTransform>();
+        HPSlider = GameObject.Find("BossHPSlider").GetComponent<Slider>();
+        bossNameText = GameObject.Find("BossNameText").GetComponent<TextMeshProUGUI>();
+        bossHealthText = GameObject.Find("BossHPText").GetComponent<TextMeshProUGUI>();
 
-        rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, -100);
-        rectTimer2 = 10;
+        SetBoss(this.gameObject, 3000, "Hakos Baelz");
+        bossHealthText.enabled = true;
 
-        bossHealthText.enabled = false;
     }
 
     void Update()
     {
-        if(boss != null)
-        {
-            if(rectTimer < rectDuration) rectTimer += Time.deltaTime;
-            float t = rectTimer / rectDuration;
-            t = 1 - Mathf.Pow(1 - t, 3);
-            float y = Mathf.Lerp(rectYHidden, rectYShown, t);
-            rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, y);   //show boss bar 
-
-            rectTimer2 = 0f;
-        }
-        else
-        {
-            if (rectTimer2 < rectDuration) rectTimer2 += Time.deltaTime;
-            float t = rectTimer2 / rectDuration;
-            t = 1 - Mathf.Pow(1 - t, 3);
-            float y = Mathf.Lerp(rectYShown, rectYHidden, t);
-            rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, y); //hide boss bar
-        }
-        
-
         if(HPSlider.value <= 0)
         {
             bossHealthText.enabled = false;
@@ -90,9 +66,7 @@ public class BossHealthBar : MonoBehaviour
         bossNameText.text = name;
 
 
-        Debug.Log("Boss set to: " + boss);
-
-        rectTimer = 0;
+        //Debug.Log("Boss set to: " + boss);
     }
 
     public void SetBarColor(Color border, Color fill, Color delay)
