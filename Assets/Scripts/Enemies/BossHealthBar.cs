@@ -7,9 +7,8 @@ using UnityEditor;
 
 public class BossHealthBar : MonoBehaviour
 {
+    public int maxHealth = 3000;
     private GameObject boss;
-    RectTransform rect;
-    public float rectDuration = 2f;
 
     public Slider HPSlider;
     public TextMeshProUGUI bossNameText;
@@ -28,7 +27,7 @@ public class BossHealthBar : MonoBehaviour
         bossNameText = GameObject.Find("BossNameText").GetComponent<TextMeshProUGUI>();
         bossHealthText = GameObject.Find("BossHPText").GetComponent<TextMeshProUGUI>();
 
-        SetBoss(this.gameObject, 3000, "Hakos Baelz");
+        SetBoss(this.gameObject, maxHealth, "Hakos Baelz");
         bossHealthText.enabled = true;
 
     }
@@ -62,6 +61,7 @@ public class BossHealthBar : MonoBehaviour
 
         HPSlider.maxValue = maxHealth;
         HPSlider.value = maxHealth;
+        bossHealthText.text = "" + maxHealth;
         lastHP = HPSlider.value;
         bossNameText.text = name;
 
@@ -86,11 +86,20 @@ public class BossHealthBar : MonoBehaviour
         {
             bossHealthText.enabled = true;
         }
+
+        //Ded
+        if(health <= 0)
+        {
+            GetComponent<BaelzControls>().curState = BaelzControls.enemyState.dying;
+        }
     }
 
     public void TakeDamage(int damage)
     {
-        SetHP(Mathf.Clamp(HPSlider.value - damage, 0, 9999));
+        if(HPSlider.value > 0)
+        {
+            SetHP(Mathf.Clamp(HPSlider.value - damage, 0, 9999));
+        }
     }
 
 }

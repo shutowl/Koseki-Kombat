@@ -396,6 +396,7 @@ public class CutsceneController : MonoBehaviour
                 scene = 13;
             }
         }
+        //Fight begins
         else if(scene == 13)
         {
             playerScript.curState = PlayerControls.playerState.moving;
@@ -405,6 +406,15 @@ public class CutsceneController : MonoBehaviour
             DOThover.Kill();
 
             scene = 14;
+        }
+        //Fight end
+        else if(scene == 14)
+        {
+            /* if(baelz ded)
+             * {
+             *      scene = 15;
+             * }
+             */
         }
 
     }

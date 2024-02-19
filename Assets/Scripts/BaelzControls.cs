@@ -30,6 +30,7 @@ public class BaelzControls : MonoBehaviour
     private GameObject player;
     public GameObject[] bullets;
     private BossHealthBar healthBar;
+    public GameObject dice;
 
     public bool grounded;
 
@@ -40,6 +41,8 @@ public class BaelzControls : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         curState = enemyState.idle;
         player = GameObject.FindGameObjectWithTag("Player");
+
+        rngCounter = 1f;
     }
 
     // Update is called once per frame
@@ -62,6 +65,43 @@ public class BaelzControls : MonoBehaviour
         {
             switch (attackNum)
             {
+                //Dice roll move
+                case 0:
+                    //Jump towards center of screen
+                    if(attackStep == 1)
+                    {
+                        direction = (Camera.main.transform.position.x - transform.position.x > 0) ? 1 : -1;
+                        float jumpForceX = Mathf.Abs(transform.position.x - Camera.main.transform.position.x) * direction * 50f;
+                        rb.AddForce(new Vector2(jumpForceX, jumpForce));
+
+                        attackTimer = 0.5f;
+                        attackStep = 2;
+                    }
+                    //Freeze position
+                    if (attackStep == 2)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        if (attackTimer <= 0 && rb.velocity.y <= 0.1f && (transform.position.x >= -0.1f && transform.position.x <= 0.1f))
+                        {
+                            rb.constraints = RigidbodyConstraints2D.FreezeAll;
+                            attackTimer = 2f;
+                            attackStep = 3;
+                        }
+                    }
+                    //Summon Dice
+                    if (attackStep == 3)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        if(attackTimer <= 0)
+                        {
+                            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+                            curState = enemyState.idle;
+                        }
+                    }
+                    break;
+
                 //Attack 1: Jumps up and shoots cheese projectiles at random angles
                 case 1:
                     //Jump slightly towards player
@@ -121,7 +161,16 @@ public class BaelzControls : MonoBehaviour
                         }
                     }
                     break;
-            }
+
+                // Attack 2: Flip Upside down, walk around, and shoot bullets downwards
+                case 2:
+                    if(attackStep == 1)
+                    {
+
+                    }
+                    break;
+
+            }//end switch
         }
 
         //-----DYING STATE------
@@ -129,15 +178,32 @@ public class BaelzControls : MonoBehaviour
         {
             rb.velocity = Vector2.zero;
             direction = (FindObjectOfType<PlayerControls>().transform.position.x - transform.position.x > 0) ? 1 : -1;
-            rb.AddForce(new Vector2(Random.Range(200f, 400f) * -direction, Random.Range(200f, 400f)));
+            rb.AddForce(new Vector2(200f * -direction, 400f));
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             //GetComponent<BoxCollider2D>().enabled = false;
             curState = enemyState.dead;
+            GetComponent<Hazard>().SetActive(false);
+            attackTimer = 1f;
+
+            Debug.Log("Baelz defeated");
         }
 
         //-----DEAD STATE-----
         else if (curState == enemyState.dead)
         {
-            Destroy(this.gameObject, 2.5f);
+            Debug.Log(rb.velocity);
+            if (grounded)
+            {
+                if (Mathf.Abs(rb.velocity.x) > 0.2f)
+                {
+                    rb.velocity = new Vector2(rb.velocity.x - (0.1f * -direction), rb.velocity.y);
+                }
+                else
+                {
+                    rb.velocity = Vector2.zero;
+                    curState = enemyState.inCutscene;
+                }
+            }
         }
 
         //-----CUTSCENE STATE-----
@@ -165,7 +231,7 @@ public class BaelzControls : MonoBehaviour
             lastAttack = attackNum;
             */
 
-            attackNum = 1;  //Debug for testing specific attacks
+            attackNum = 0;  //Debug for testing specific attacks
 
             attackStep = 1; //Reset attack step to 1 after each attack
             direction = (player.transform.position.x - transform.position.x > 0) ? 1 : -1;  //enemy faces towards player upon landing
