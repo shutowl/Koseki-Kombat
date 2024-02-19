@@ -12,8 +12,11 @@ public class CutsceneController : MonoBehaviour
     Sequence DOTmovePlayerUI;
 
     public GameObject baelz;
+    BaelzControls baelzScript;
+    GameObject baelzPrefab;
     public GameObject bossHealthBar;
     Sequence DOTmoveBossUI;
+    Sequence DOThover;
 
     public float scene1Duration;
     public Vector2 playerStartPos;
@@ -41,18 +44,24 @@ public class CutsceneController : MonoBehaviour
         inputActions = new InputActions();
         inputActions.UI.Enable();
 
+        HideUI();
+
         playerScript = player.GetComponent<PlayerControls>();
         playerScript.curState = PlayerControls.playerState.inCutscene;
-        //also get baelz script
+        baelzScript = baelz.GetComponent<BaelzControls>();
+        baelzScript.curState = BaelzControls.enemyState.inCutscene;
 
         //Player starts offscreen and runs in
         player.transform.position = playerStartPos;
         DOTmovePlayer = DOTween.Sequence();
         DOTmovePlayer.Append(player.transform.DOMove(playerEndPos, scene1Duration).SetEase(Ease.OutSine));
+
+        DOThover = DOTween.Sequence();
     }
 
     void Update()
     {
+        //Bijou runs in from the left side
         if(scene == 0)
         {
             if(player.transform.position.x >= playerEndPos.x)
@@ -65,6 +74,7 @@ public class CutsceneController : MonoBehaviour
                 ShowDialogue();
             }
         }
+        //Wait for dialogue to show and setup next dialogue line
         if(scene == 1)
         {
             sceneTimer -= Time.deltaTime;
@@ -80,15 +90,20 @@ public class CutsceneController : MonoBehaviour
                 dialogueText.text = "";
             }
         }
-        else if(scene == 2)
+        //Bijou says "“HAKOS BAELZ, I know you’re here! Show yourself!”
+        else if (scene == 2)
         {
             textTimer -= Time.deltaTime;
             if(textTimer <= 0 && !nextLine.Equals(""))
             {
                 if (nextLine[0] != '*')
+                {
                     dialogueText.text += nextLine[0];
+                    AudioManager.Instance.Play("BijouText");
+                }
                 nextLine = nextLine.Remove(0, 1);
                 textTimer = textSpeed;
+
             }
 
             if(inputActions.UI.Confirm.WasPressedThisFrame())
@@ -111,15 +126,21 @@ public class CutsceneController : MonoBehaviour
                 }
             }
         }
-        else if(scene == 3)
+        //Baelz says “...Heh, so you’ve finally arrived, Koseki Bijou.”
+        else if (scene == 3)
         {
             textTimer -= Time.deltaTime;
             if (textTimer <= 0 && !nextLine.Equals(""))
             {
                 if (nextLine[0] != '*')
+                {
                     dialogueText.text += nextLine[0];
+                    AudioManager.Instance.Play("BaelzText");
+                }
+
                 nextLine = nextLine.Remove(0, 1);
                 textTimer = textSpeed;
+
             }
 
             if (inputActions.UI.Confirm.WasPressedThisFrame())
@@ -135,6 +156,7 @@ public class CutsceneController : MonoBehaviour
                 {
                     dialogueText.text += nextLine.Replace("*", "");
                     nextLine = "";
+
                 }
             }
         }
@@ -146,7 +168,12 @@ public class CutsceneController : MonoBehaviour
             if(sceneTimer <= 0)
             {
                 Instantiate(explosion, baeSpawnPoint.transform.position, Quaternion.identity);
-                Instantiate(baelz, baeSpawnPoint.transform.position, Quaternion.identity);
+                baelzPrefab = Instantiate(baelz, baeSpawnPoint.transform.position, Quaternion.identity);
+                baelzPrefab.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezePosition;
+                DOThover = DOTween.Sequence();
+                DOThover.Append(baelzPrefab.transform.DOMoveY(baeSpawnPoint.transform.position.y - 1, 2).SetEase(Ease.InOutSine));
+                DOThover.Append(baelzPrefab.transform.DOMoveY(baeSpawnPoint.transform.position.y, 2).SetEase(Ease.InOutSine));
+                DOThover.SetLoops(-1);
 
                 sceneTimer = 2f;
                 scene = 5;
@@ -158,17 +185,226 @@ public class CutsceneController : MonoBehaviour
 
             if(sceneTimer <= 0)
             {
-                HideDialogue();
-                scene = 20;
+                sceneTimer = 1.25f;
+                scene = 6;
+                ShowDialogue();
+                dialogueText.text = "";
             }
         }
-        else if(scene == 20)
+        //Short delay before dialogue again
+        else if(scene == 6)
+        {
+            sceneTimer -= Time.deltaTime;
+
+            if(sceneTimer <= 0)
+            {
+                nextLine = "This steel rose has been awaiting you,****** my sparkling gem.";
+                textSpeed = 0.05f;
+                textTimer = 0;
+                dialogueText.text = "";
+
+                speakerText.text = "Hakos Baelz";
+
+                scene = 7;
+            }
+        }
+        //Bae says "This steel rose has been awaiting you, my sparkling gem."
+        else if (scene == 7)
+        {
+            textTimer -= Time.deltaTime;
+            if (textTimer <= 0 && !nextLine.Equals(""))
+            {
+                if (nextLine[0] != '*')
+                {
+                    dialogueText.text += nextLine[0];
+                    AudioManager.Instance.Play("BaelzText");
+                }
+
+                nextLine = nextLine.Remove(0, 1);
+                textTimer = textSpeed;
+            }
+
+            if (inputActions.UI.Confirm.WasPressedThisFrame())
+            {
+                if (nextLine.Equals(""))
+                {
+                    nextLine = "The world will soon plummet into chaos,****** with you as its last beacon of hope.";
+                    textSpeed = 0.05f;
+                    textTimer = 0;
+                    dialogueText.text = "";
+
+                    speakerText.text = "Hakos Baelz";
+
+                    scene = 8;
+                }
+                else
+                {
+                    dialogueText.text += nextLine.Replace("*", "");
+                    nextLine = "";
+                }
+            }
+        }
+        //Bae says "The world will soon plummet into chaos, with you as its last beacon of hope"
+        else if (scene == 8)
+        {
+            textTimer -= Time.deltaTime;
+            if (textTimer <= 0 && !nextLine.Equals(""))
+            {
+                if (nextLine[0] != '*')
+                {
+                    dialogueText.text += nextLine[0];
+                    AudioManager.Instance.Play("BaelzText");
+                }
+
+                nextLine = nextLine.Remove(0, 1);
+                textTimer = textSpeed;
+            }
+
+            if (inputActions.UI.Confirm.WasPressedThisFrame())
+            {
+                if (nextLine.Equals(""))
+                {
+                    nextLine = "Heh,**** just try it!******* I could care less what happens to the world.";
+                    textSpeed = 0.05f;
+                    textTimer = 0;
+                    dialogueText.text = "";
+
+                    speakerText.text = "Koseki Bijou";
+
+                    scene = 9;
+                }
+                else
+                {
+                    dialogueText.text += nextLine.Replace("*", "");
+                    nextLine = "";
+                }
+            }
+        }
+        //Bijou says "Heh, just try it! I could care less what happens to the world."
+        else if (scene == 9)
+        {
+            textTimer -= Time.deltaTime;
+            if (textTimer <= 0 && !nextLine.Equals(""))
+            {
+                if (nextLine[0] != '*')
+                {
+                    dialogueText.text += nextLine[0];
+                    AudioManager.Instance.Play("BijouText");
+                }
+
+                nextLine = nextLine.Remove(0, 1);
+                textTimer = textSpeed;
+            }
+
+            if (inputActions.UI.Confirm.WasPressedThisFrame())
+            {
+                if (nextLine.Equals(""))
+                {
+                    nextLine = "I’m just here to settle our score!";
+                    textSpeed = 0.05f;
+                    textTimer = 0;
+                    dialogueText.text = "";
+
+                    speakerText.text = "Koseki Bijou";
+
+                    scene = 10;
+                }
+                else
+                {
+                    dialogueText.text += nextLine.Replace("*", "");
+                    nextLine = "";
+                }
+            }
+        }
+        //Bijou says "I'm just here to settle our score"
+        else if(scene == 10)
+        {
+            textTimer -= Time.deltaTime;
+            if (textTimer <= 0 && !nextLine.Equals(""))
+            {
+                if (nextLine[0] != '*')
+                {
+                    dialogueText.text += nextLine[0];
+                    AudioManager.Instance.Play("BijouText");
+                }
+
+                nextLine = nextLine.Remove(0, 1);
+                textTimer = textSpeed;
+            }
+
+
+            if (inputActions.UI.Confirm.WasPressedThisFrame())
+            {
+                if (nextLine.Equals(""))
+                {
+                    nextLine = "HAH!******** THEN WITNESS ME!!";
+                    textSpeed = 0.04f;
+                    textTimer = 0;
+                    dialogueText.text = "";
+
+                    speakerText.text = "Hakos Baelz";
+
+                    scene = 11;
+                }
+                else
+                {
+                    dialogueText.text += nextLine.Replace("*", "");
+                    nextLine = "";
+                }
+            }
+        }
+        //Baelz says "HAH, THEN WITNESS ME!!!"
+        else if(scene == 11)
+        {
+            textTimer -= Time.deltaTime;
+            if (textTimer <= 0 && !nextLine.Equals(""))
+            {
+                if (nextLine[0] != '*')
+                {
+                    dialogueText.text += nextLine[0];
+                    AudioManager.Instance.Play("BaelzText");
+                }
+
+                nextLine = nextLine.Remove(0, 1);
+                textTimer = textSpeed;
+            }
+
+            if (inputActions.UI.Confirm.WasPressedThisFrame())
+            {
+                if (nextLine.Equals(""))
+                {
+                    HideDialogue();
+                    ShowUI();
+
+                    sceneTimer = 1f;
+                    scene = 12;
+                }
+                else
+                {
+                    dialogueText.text += nextLine.Replace("*", "");
+                    nextLine = "";
+                }
+            }
+        }
+        //Hide dialogue, show UI, then short delay
+        else if(scene == 12)
+        {
+            sceneTimer -= Time.deltaTime;
+
+            if (sceneTimer <= 0)
+            {
+                scene = 13;
+            }
+        }
+        else if(scene == 13)
         {
             playerScript.curState = PlayerControls.playerState.moving;
             player.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
-            ShowUI();
+            baelzScript.curState = BaelzControls.enemyState.idle;
+            baelzPrefab.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
+            DOThover.Kill();
 
-            scene = 21;
+            scene = 14;
         }
 
     }

@@ -7,6 +7,8 @@ TagManager:
   - Ground
   - Hitbox
   - PlayerBullet
+  - Enemy
+  - EnemyBullet
   layers:
   - Default
   - TransparentFX

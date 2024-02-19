@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerBullet : MonoBehaviour
 {
     public float speed = 10f;
+    public int damage = 20;
     public Vector2 direction;
     Rigidbody2D rb;
 

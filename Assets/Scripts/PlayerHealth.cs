@@ -22,7 +22,7 @@ public class PlayerHealth : MonoBehaviour
     {
         player = gameObject.GetComponent<PlayerControls>();
         currentHealth = maxHealth;
-        healthText.text = currentHealth + "/" + maxHealth;
+        healthText.text = currentHealth + "";
         SetMaxHealth(maxHealth);
         FullHeal();
     }
@@ -96,16 +96,16 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = maxHealth;
         HPSlider.value = maxHealth;
         delaySlider.value = maxHealth;
-        healthText.text = currentHealth + "/" + maxHealth;
+        healthText.text = currentHealth + "";
     }
 
     public void SetHealth(int health)
     {
         currentHealth = health;
         HPSlider.value = health;
-        healthText.text = currentHealth + "/" + maxHealth;
+        healthText.text = currentHealth + "";
 
-        if(health > delaySlider.value)
+        if (health > delaySlider.value)
         {
             delaySlider.value = health;
         }
@@ -116,8 +116,10 @@ public class PlayerHealth : MonoBehaviour
     {
         maxHealth = health;
         HPSlider.maxValue = health;
-        healthText.text = currentHealth + "/" + maxHealth;
+        healthText.text = currentHealth + "";
 
         delaySlider.maxValue = health;
     }
+
+
 }

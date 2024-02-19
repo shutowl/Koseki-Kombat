@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1314336970085285438}
   - component: {fileID: 6863272508646977327}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: GroundedCheck
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -89,9 +89,10 @@ GameObject:
   - component: {fileID: 3995551305903428699}
   - component: {fileID: 8641325652450639678}
   - component: {fileID: 140597459702318796}
+  - component: {fileID: 7807410461461707519}
+  - component: {fileID: 5157431496636349631}
   - component: {fileID: 2280188217723090015}
   - component: {fileID: 9187666631518033989}
-  - component: {fileID: 5157431496636349631}
   m_Layer: 3
   m_Name: tempBae
   m_TagString: Untagged
@@ -236,9 +237,35 @@ Rigidbody2D:
     serializedVersion: 2
     m_Bits: 0
   m_Interpolate: 0
-  m_SleepingMode: 1
+  m_SleepingMode: 0
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &7807410461461707519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 502949373971383415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8ca336442963034a9236d54e83de95e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5157431496636349631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 502949373971383415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac985c50ba88fb140afa35d0fe494a2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 10
+  hitstun: 0.5
 --- !u!114 &2280188217723090015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,6 +278,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94885dbc197a4c1449d3e318c305189f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curState: 0
+  speed: 10
+  jumpForce: 800
+  bullets:
+  - {fileID: 7787239517612656393, guid: 56cffaf89fef150488fef4400eaea5ee, type: 3}
   grounded: 0
 --- !u!114 &9187666631518033989
 MonoBehaviour:
@@ -271,17 +303,3 @@ MonoBehaviour:
   HPDuration: 1
   borderImage: {fileID: 0}
   fillImage: {fileID: 0}
---- !u!114 &5157431496636349631
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 502949373971383415}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac985c50ba88fb140afa35d0fe494a2c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damage: 10
-  hitstun: 0.5

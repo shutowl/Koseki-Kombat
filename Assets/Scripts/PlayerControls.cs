@@ -245,7 +245,7 @@ public class PlayerControls : MonoBehaviour
 
             //DEBUG: reset position to recent respawn point
             transform.position = respawnPoint;
-            //GetComponent<PlayerHealth>().FullHeal();
+            GetComponent<PlayerHealth>().FullHeal();
             curState = playerState.moving;
         }
 
@@ -256,13 +256,13 @@ public class PlayerControls : MonoBehaviour
         }
 
         //-----SHOOTING-----
+        if (fireTimer > 0)
+        {
+            fireTimer -= Time.deltaTime;
+        }
         if (shooting)
         {
-            if(fireTimer > 0)
-            {
-                fireTimer -= Time.deltaTime;
-            }
-            else
+            if(fireTimer <= 0)
             {
                 //Fire Bullet
                 GameObject tempBullet = Instantiate(bullet, transform.position, Quaternion.identity);

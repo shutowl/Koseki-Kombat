@@ -88,12 +88,11 @@ public class BossHealthBar : MonoBehaviour
         }
     }
 
-    //Custom Inspector button to check bar colors
-    public void PrintColors()
+    public void TakeDamage(int damage)
     {
-        Debug.Log("Border: " + borderImage.color);
-        Debug.Log("Fill: " + fillImage.color);
+        SetHP(Mathf.Clamp(HPSlider.value - damage, 0, 9999));
     }
+
 }
 /*
 [CustomEditor(typeof(BossHealthBar))]
