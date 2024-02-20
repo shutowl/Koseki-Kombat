@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class BaelzControls : MonoBehaviour
 {
@@ -21,16 +22,19 @@ public class BaelzControls : MonoBehaviour
     int attackNum = 0;      // Used for attack timings
     int attackStep = 1;     // Current step of current attack
     int lastAttack = 0;     // Last attack performed (prevents repeat attacks
+    int attacksTillDice = 0; // attacks left till dice roll move
     int direction = 1;
     int difficulty = 1;     // Difficulty is determined by dice roll
 
     float fireRateTimer;
+    float angleOffset;
 
     private Rigidbody2D rb;
     private GameObject player;
     public GameObject[] bullets;
     private BossHealthBar healthBar;
     public GameObject dice;
+    GameObject storedDie;
 
     public bool grounded;
 
@@ -42,6 +46,7 @@ public class BaelzControls : MonoBehaviour
         curState = enemyState.idle;
         player = GameObject.FindGameObjectWithTag("Player");
 
+        attacksTillDice = 0;
         rngCounter = 1f;
     }
 
@@ -65,7 +70,7 @@ public class BaelzControls : MonoBehaviour
         {
             switch (attackNum)
             {
-                //Dice roll move
+                //Dice roll to determine attack strength
                 case 0:
                     //Jump towards center of screen
                     if(attackStep == 1)
@@ -85,7 +90,7 @@ public class BaelzControls : MonoBehaviour
                         if (attackTimer <= 0 && rb.velocity.y <= 0.1f && (transform.position.x >= -0.1f && transform.position.x <= 0.1f))
                         {
                             rb.constraints = RigidbodyConstraints2D.FreezeAll;
-                            attackTimer = 2f;
+                            attackTimer = 0.5f;
                             attackStep = 3;
                         }
                     }
@@ -96,6 +101,41 @@ public class BaelzControls : MonoBehaviour
 
                         if(attackTimer <= 0)
                         {
+                            int dieDirection = (Random.Range(-1f, 1f) >= 0) ? 1 : -1; 
+                            storedDie = Instantiate(dice, transform.position + new Vector3(dieDirection * 3, 5), Quaternion.identity);
+                            storedDie.transform.DOMoveY(transform.position.y, 0.5f).SetEase(Ease.OutCubic);
+                            GetComponent<BoxCollider2D>().enabled = false;
+
+                            attackTimer = 5f;
+                            attackStep = 4;
+                        }
+                    }
+                    //Time limit for determining dice
+                    if(attackStep == 4)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        if(attackTimer <= 0 && !storedDie.GetComponent<Dice>().IsRolling())
+                        {
+                            difficulty = storedDie.GetComponent<Dice>().GetFace();
+                            Debug.Log("Next few attacks have a power of: " + difficulty);
+                            storedDie.transform.DOMoveY(transform.position.y + 5, 0.5f).SetEase(Ease.InCubic);
+                            storedDie.GetComponent<Dice>().SetRollable(false);
+
+                            attackTimer = 1f;
+                            attackStep = 5;
+                        }
+                    }
+                    //Dice are lifted back out of view, then destroyed
+                    if(attackStep == 5)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        if(attackTimer <= 0)
+                        {
+                            Destroy(storedDie);
+
+                            GetComponent<BoxCollider2D>().enabled = true;
                             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                             curState = enemyState.idle;
                         }
@@ -123,7 +163,7 @@ public class BaelzControls : MonoBehaviour
                         {
                             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
 
-                            attackTimer = 2f;
+                            attackTimer = 3f;
                             attackStep = 3;
                         }
                     }
@@ -133,15 +173,17 @@ public class BaelzControls : MonoBehaviour
                         attackTimer -= Time.deltaTime;
 
                         //Shoot bullets
-                        float fireRate = 0.1f;
-                        int density = 3;
+                        float fireRate = 0.2f - (Mathf.Clamp(difficulty * 0.015f, 0f, 0.1f));
+                        int density = 2 + (Mathf.Clamp(difficulty - 2, 0, 6));  //2 to 6 bullets
                         if (fireRateTimer > 0) fireRateTimer -= Time.deltaTime;
                         else
                         {
-                            float angle = Random.Range(0, 2 * Mathf.PI);
+                            //float angle = Random.Range(0, 2 * Mathf.PI);
+                            float angle = 0 + angleOffset;
+                            angleOffset += 1f;
                             for(int i = 0; i < density; i++)
                             {
-                                angle += 0.3f;
+                                angle += 0.4f - (Mathf.Clamp(difficulty * 0.03f, 0f, 0.2f));
                                 float x = Mathf.Cos(angle);
                                 float y = Mathf.Sin(angle);
                                 Vector2 pos = (Vector2)transform.position + new Vector2(x, y);
@@ -191,7 +233,6 @@ public class BaelzControls : MonoBehaviour
         //-----DEAD STATE-----
         else if (curState == enemyState.dead)
         {
-            Debug.Log(rb.velocity);
             if (grounded)
             {
                 if (Mathf.Abs(rb.velocity.x) > 0.2f)
@@ -219,19 +260,34 @@ public class BaelzControls : MonoBehaviour
             curState = enemyState.attacking;
             attackTimer = 1f;
 
+            int RNG;
             //weighted RNG for attacks
-            int RNG = Random.Range(1, 2);
-
-            /*
-            attackNum = RNG;
-            while(attackNum == lastAttack)
+            if (attacksTillDice > 0)
             {
-                attackNum = Random.Range(1, 2);
-            }
-            lastAttack = attackNum;
-            */
+                RNG = Random.Range(1, 2);               //1-1
 
-            attackNum = 0;  //Debug for testing specific attacks
+                /*
+                attackNum = RNG;
+                while(attackNum == lastAttack)
+                {
+                    attackNum = Random.Range(1, 2);
+                }
+                lastAttack = attackNum;
+                */
+                attackNum = RNG;
+                lastAttack = attackNum;
+
+                attacksTillDice--;
+            }
+            else
+            {
+                attackNum = 0;
+                attacksTillDice = Random.Range(2, 4);   //2-3
+            }
+
+
+            //attackNum = 0;  //Debug for testing specific attacks
+            //difficulty = 1; //Debug for specific difficulties
 
             attackStep = 1; //Reset attack step to 1 after each attack
             direction = (player.transform.position.x - transform.position.x > 0) ? 1 : -1;  //enemy faces towards player upon landing

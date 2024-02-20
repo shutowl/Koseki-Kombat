@@ -14,6 +14,7 @@ public class Dice : MonoBehaviour
     public Sprite[] dieFaces;
     [SerializeField] int face = 1;  //from 1-6
     bool rolling;
+    bool rollable;
 
     public float faceChangeRate = 0.2f;
     float faceChangeTimer = 0;
@@ -22,6 +23,7 @@ public class Dice : MonoBehaviour
 
     void Start()
     {
+        rollable = true;
         rolling = true;
         diceText.text = "";
 
@@ -61,17 +63,21 @@ public class Dice : MonoBehaviour
         {
             delayTimer -= Time.deltaTime;
         }
+
     }
 
 
 
     public void RollDie(float delay)
     {
-        rolling = true;
-        transform.DORotate(new Vector3(0, 0, -1080), rollDuration, RotateMode.FastBeyond360).SetEase(Ease.OutQuint).SetDelay(delay);
-        rollTimer = rollDuration;
+        if (rollable)
+        {
+            rolling = true;
+            transform.DORotate(new Vector3(0, 0, -1080), rollDuration, RotateMode.FastBeyond360).SetEase(Ease.OutQuint).SetDelay(delay);
+            rollTimer = rollDuration;
 
-        //Play dice roll sound
+            //Play dice roll sound
+        }
     }
 
     public void RollDie()
@@ -88,6 +94,16 @@ public class Dice : MonoBehaviour
     public int GetFace()
     {
         return face;
+    }
+
+    public bool IsRolling()
+    {
+        return rolling;
+    }
+
+    public void SetRollable(bool rolling)
+    {
+        rollable = rolling;
     }
 
     private void OnTriggerEnter2D(Collider2D col)
