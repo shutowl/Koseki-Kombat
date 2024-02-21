@@ -12,6 +12,7 @@ public class PlayerControls : MonoBehaviour
         blocking,
         hitstun,
         inCutscene,
+        dying,
         dead
     }
     public playerState curState;
@@ -235,6 +236,12 @@ public class PlayerControls : MonoBehaviour
             {
                 curState = playerState.moving;
             }
+        }
+
+        //------DYING STATE-----
+        else if(curState == playerState.dead)
+        {
+            //should work similar to baelz's death code
         }
 
         //------DEAD STATE-----

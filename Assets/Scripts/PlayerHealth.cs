@@ -61,19 +61,22 @@ public class PlayerHealth : MonoBehaviour
 
     public void Damage(int damage, float hitstun)
     {
-        if(player.curState != PlayerControls.playerState.hitstun) currentHealth -= Mathf.Clamp(damage, 0, maxHealth);
-        SetHealth(currentHealth);
-
-        if (currentHealth <= 0)
+        if(player.curState != PlayerControls.playerState.inCutscene)
         {
-            player.curState = PlayerControls.playerState.dead;
-        }
-        else
-        {
-            player.SetDamageState(hitstun);
-        }
+            if (player.curState != PlayerControls.playerState.hitstun) currentHealth -= Mathf.Clamp(damage, 0, maxHealth);
+            SetHealth(currentHealth);
 
-        delayTimer = delayDuration;
+            if (currentHealth <= 0)
+            {
+                player.curState = PlayerControls.playerState.dead;
+            }
+            else
+            {
+                player.SetDamageState(hitstun);
+            }
+
+            delayTimer = delayDuration;
+        }
     }
 
     //Returns true if healing activates, false otherwise.

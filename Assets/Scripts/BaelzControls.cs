@@ -28,6 +28,7 @@ public class BaelzControls : MonoBehaviour
 
     float fireRateTimer;
     float angleOffset;
+    int attack2Counter = 0; //Increments. determines number of bullets
 
     private Rigidbody2D rb;
     private GameObject player;
@@ -37,6 +38,11 @@ public class BaelzControls : MonoBehaviour
     GameObject storedDie;
 
     public bool grounded;
+
+    public GameObject dangerIndicator;
+    GameObject laserIndicator;
+    GameObject danger;
+    Vector3 delayedPos = Vector2.zero;
 
 
     void Start()
@@ -206,6 +212,223 @@ public class BaelzControls : MonoBehaviour
 
                 // Attack 2: Flip Upside down, walk around, and shoot bullets downwards
                 case 2:
+                    //Jump
+                    if(attackStep == 1)
+                    {
+                        attack2Counter = 0;
+                        rb.AddForce(new Vector2(0, jumpForce));
+                        //AudioManager.Instance.Play("Jump");
+
+                        attackTimer = 0.5f;
+                        attackStep = 2;
+                    }
+                    //Flip gravity
+                    if(attackStep == 2)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        if(attackTimer <= 0 && rb.velocity.y <= 0.1f)
+                        {
+                            transform.localEulerAngles = new Vector3(0, 0, 180);
+                            rb.gravityScale = -1;
+
+                            attackStep = 3;
+                        }
+                    }
+                    //Start moving to opposite side of camera
+                    if(attackStep == 3)
+                    {
+                        if (grounded)
+                        {
+                            direction = (Camera.main.transform.position.x - transform.position.x > 0) ? 1 : -1;
+                            transform.DOMoveX(Camera.main.transform.position.x + (9 * direction), 5).SetEase(Ease.OutSine);
+
+                            attackTimer = 2f;
+                            attackStep = 4;
+                        }
+                    }
+                    //Shoot bullets downwards (alternate between 1, 2, 3 bullets, or maybe more if higher difficulty)
+                    if(attackStep == 4)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        float fireRate = 0.2f - (Mathf.Clamp(difficulty * 0.02f, 0f, 0.12f));
+                        if (fireRateTimer >= 0) { fireRateTimer -= Time.deltaTime; }
+                        else
+                        {
+                            if(attack2Counter % 4 == 3) //3
+                            {
+                                float angle = 3 * Mathf.PI / 2; //downwards
+                                float x = Mathf.Cos(angle);
+                                float y = Mathf.Sin(angle);
+                                Vector2 pos = (Vector2)transform.position + new Vector2(x, y);
+                                float angleDegrees = angle * Mathf.Rad2Deg - 90;
+                                Quaternion rot = Quaternion.Euler(0, 0, angleDegrees);
+
+                                GameObject bullet = Instantiate(bullets[0], pos, rot);
+                                bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+
+                                angle = 7 * Mathf.PI / 6; //down-left
+                                x = Mathf.Cos(angle);
+                                y = Mathf.Sin(angle);
+                                pos = (Vector2)transform.position + new Vector2(x, y);
+                                angleDegrees = angle * Mathf.Rad2Deg - 90;
+                                rot = Quaternion.Euler(0, 0, angleDegrees);
+
+                                bullet = Instantiate(bullets[0], pos, rot);
+                                bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+
+                                angle = 11 * Mathf.PI / 6; //down-right
+                                x = Mathf.Cos(angle);
+                                y = Mathf.Sin(angle);
+                                pos = (Vector2)transform.position + new Vector2(x, y);
+                                angleDegrees = angle * Mathf.Rad2Deg - 90;
+                                rot = Quaternion.Euler(0, 0, angleDegrees);
+
+                                bullet = Instantiate(bullets[0], pos, rot);
+                                bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+                            }
+                            else if((difficulty >= 3) && (attack2Counter % 4 == 2 || attack2Counter % 4 == 0)) //2
+                            {
+                                float angle = 4 * Mathf.PI / 3; //down-left
+                                float x = Mathf.Cos(angle);
+                                float y = Mathf.Sin(angle);
+                                Vector2 pos = (Vector2)transform.position + new Vector2(x, y);
+                                float angleDegrees = angle * Mathf.Rad2Deg - 90;
+                                Quaternion rot = Quaternion.Euler(0, 0, angleDegrees);
+
+                                GameObject bullet = Instantiate(bullets[0], pos, rot);
+                                bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+
+                                angle = 5 * Mathf.PI / 3; //down-right
+                                x = Mathf.Cos(angle);
+                                y = Mathf.Sin(angle);
+                                pos = (Vector2)transform.position + new Vector2(x, y);
+                                angleDegrees = angle * Mathf.Rad2Deg - 90;
+                                rot = Quaternion.Euler(0, 0, angleDegrees);
+
+                                bullet = Instantiate(bullets[0], pos, rot);
+                                bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+                            }
+                            else if (attack2Counter % 4 == 1) // 3
+                            {
+                                float angle = 3 * Mathf.PI / 2; //downwards
+                                float x = Mathf.Cos(angle);
+                                float y = Mathf.Sin(angle);
+                                Vector2 pos = (Vector2)transform.position + new Vector2(x, y);
+                                float angleDegrees = angle * Mathf.Rad2Deg - 90;
+                                Quaternion rot = Quaternion.Euler(0, 0, angleDegrees);
+
+                                GameObject bullet = Instantiate(bullets[0], pos, rot);
+                                bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+                            }
+
+                            fireRateTimer = fireRate;
+                            attack2Counter++;
+                        }
+
+                        //Move other direction
+                        if(attackTimer <= 0 && Mathf.Abs(Camera.main.transform.position.x - transform.position.x) >= 8.9f)
+                        {
+                            direction = (Camera.main.transform.position.x - transform.position.x > 0) ? 1 : -1;
+                            transform.DOMoveX(Camera.main.transform.position.x + (9 * direction), 5).SetEase(Ease.InOutSine);
+
+                            attackTimer = 2f;
+                            attackStep = 5;
+                        }
+                    }
+                    if(attackStep == 5)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        float fireRate = 0.2f - (Mathf.Clamp(difficulty * 0.015f, 0f, 0.1f));
+                        if (fireRateTimer >= 0) { fireRateTimer -= Time.deltaTime; }
+                        else
+                        {
+                            if (attack2Counter % 4 == 3) //3
+                            {
+                                float angle = 3 * Mathf.PI / 2; //downwards
+                                float x = Mathf.Cos(angle);
+                                float y = Mathf.Sin(angle);
+                                Vector2 pos = (Vector2)transform.position + new Vector2(x, y);
+                                float angleDegrees = angle * Mathf.Rad2Deg - 90;
+                                Quaternion rot = Quaternion.Euler(0, 0, angleDegrees);
+
+                                GameObject bullet = Instantiate(bullets[0], pos, rot);
+                                bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+
+                                angle = 7 * Mathf.PI / 6; //down-left
+                                x = Mathf.Cos(angle);
+                                y = Mathf.Sin(angle);
+                                pos = (Vector2)transform.position + new Vector2(x, y);
+                                angleDegrees = angle * Mathf.Rad2Deg - 90;
+                                rot = Quaternion.Euler(0, 0, angleDegrees);
+
+                                bullet = Instantiate(bullets[0], pos, rot);
+                                bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+
+                                angle = 11 * Mathf.PI / 6; //down-right
+                                x = Mathf.Cos(angle);
+                                y = Mathf.Sin(angle);
+                                pos = (Vector2)transform.position + new Vector2(x, y);
+                                angleDegrees = angle * Mathf.Rad2Deg - 90;
+                                rot = Quaternion.Euler(0, 0, angleDegrees);
+
+                                bullet = Instantiate(bullets[0], pos, rot);
+                                bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+                            }
+                            else if ((difficulty >= 3) && (attack2Counter % 4 == 2 || attack2Counter % 4 == 0)) //2
+                            {
+                                float angle = 4 * Mathf.PI / 3; //down-left
+                                float x = Mathf.Cos(angle);
+                                float y = Mathf.Sin(angle);
+                                Vector2 pos = (Vector2)transform.position + new Vector2(x, y);
+                                float angleDegrees = angle * Mathf.Rad2Deg - 90;
+                                Quaternion rot = Quaternion.Euler(0, 0, angleDegrees);
+
+                                GameObject bullet = Instantiate(bullets[0], pos, rot);
+                                bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+
+                                angle = 5 * Mathf.PI / 3; //down-right
+                                x = Mathf.Cos(angle);
+                                y = Mathf.Sin(angle);
+                                pos = (Vector2)transform.position + new Vector2(x, y);
+                                angleDegrees = angle * Mathf.Rad2Deg - 90;
+                                rot = Quaternion.Euler(0, 0, angleDegrees);
+
+                                bullet = Instantiate(bullets[0], pos, rot);
+                                bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+                            }
+                            else if(attack2Counter % 4 == 1) // 3
+                            {
+                                float angle = 3 * Mathf.PI / 2; //downwards
+                                float x = Mathf.Cos(angle);
+                                float y = Mathf.Sin(angle);
+                                Vector2 pos = (Vector2)transform.position + new Vector2(x, y);
+                                float angleDegrees = angle * Mathf.Rad2Deg - 90;
+                                Quaternion rot = Quaternion.Euler(0, 0, angleDegrees);
+
+                                GameObject bullet = Instantiate(bullets[0], pos, rot);
+                                bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+                            }
+
+                            fireRateTimer = fireRate;
+                            attack2Counter++;
+                        }
+
+                        //Move other direction
+                        if (attackTimer <= 0 && Mathf.Abs(Camera.main.transform.position.x - transform.position.x) >= 8.9f)
+                        {
+                            transform.localEulerAngles = new Vector3(0, 0, 0);
+                            rb.gravityScale = 1;
+
+                            curState = enemyState.idle;
+                        }
+                    }
+                    break;
+
+                // Attack 3: Jump high offscreen, then slam down at the player's position. Lasers shoot from the ground after landing.
+                case 3:
                     if(attackStep == 1)
                     {
 
@@ -218,6 +441,10 @@ public class BaelzControls : MonoBehaviour
         //-----DYING STATE------
         else if (curState == enemyState.dying)
         {
+            DOTween.Kill(transform);
+            rb.gravityScale = 1;
+            transform.eulerAngles = Vector2.zero;
+
             rb.velocity = Vector2.zero;
             direction = (FindObjectOfType<PlayerControls>().transform.position.x - transform.position.x > 0) ? 1 : -1;
             rb.AddForce(new Vector2(200f * -direction, 400f));
@@ -264,7 +491,7 @@ public class BaelzControls : MonoBehaviour
             //weighted RNG for attacks
             if (attacksTillDice > 0)
             {
-                RNG = Random.Range(1, 2);               //1-1
+                RNG = Random.Range(1, 3);               //1-2
 
                 /*
                 attackNum = RNG;
@@ -274,7 +501,9 @@ public class BaelzControls : MonoBehaviour
                 }
                 lastAttack = attackNum;
                 */
+
                 attackNum = RNG;
+                //attackNum = 2;
                 lastAttack = attackNum;
 
                 attacksTillDice--;
@@ -296,10 +525,16 @@ public class BaelzControls : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D col)
     {
-        if (col.CompareTag("PlayerBullet"))
+        if (attackNum != 0 && col.CompareTag("PlayerBullet"))
         {
             healthBar.TakeDamage(col.GetComponent<PlayerBullet>().damage);
             Destroy(col.gameObject);
         }
+    }
+
+    //some good values: (1, 0.5, 200, 10)
+    void CameraShake(float duration, float strength, int vibrato, float randomness)
+    {
+        Camera.main.DOShakePosition(duration, strength, vibrato, randomness, true, ShakeRandomnessMode.Harmonic);
     }
 }

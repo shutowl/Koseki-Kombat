@@ -64,7 +64,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.0027990341, y: -0.5774523}
+  m_Offset: {x: 0.0027990341, y: -0.47031885}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -75,7 +75,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.75929165, y: 0.16206956}
+  m_Size: {x: 0.75929165, y: 0.13387656}
   m_EdgeRadius: 0
 --- !u!1 &502949373971383415
 GameObject:
@@ -285,6 +285,7 @@ MonoBehaviour:
   - {fileID: 7787239517612656393, guid: 56cffaf89fef150488fef4400eaea5ee, type: 3}
   dice: {fileID: 7704072627286850184, guid: 74684c8876d8d5e4b87db3ff943a6633, type: 3}
   grounded: 0
+  dangerIndicator: {fileID: 0}
 --- !u!114 &9187666631518033989
 MonoBehaviour:
   m_ObjectHideFlags: 0
