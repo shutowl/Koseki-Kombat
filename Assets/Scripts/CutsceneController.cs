@@ -57,6 +57,8 @@ public class CutsceneController : MonoBehaviour
         DOTmovePlayer.Append(player.transform.DOMove(playerEndPos, scene1Duration).SetEase(Ease.OutSine));
 
         DOThover = DOTween.Sequence();
+
+        player.GetComponent<Animator>().Play("Run");
     }
 
     void Update()
@@ -72,6 +74,8 @@ public class CutsceneController : MonoBehaviour
                 dialogueText.text = "";
                 speakerText.text = "Koseki Bijou";
                 ShowDialogue();
+
+                player.GetComponent<Animator>().Play("Idle");
             }
         }
         //Wait for dialogue to show and setup next dialogue line
@@ -345,6 +349,8 @@ public class CutsceneController : MonoBehaviour
                     speakerText.text = "Hakos Baelz";
 
                     scene = 11;
+
+                    AudioManager.Instance.PlayMusic("PSYCHO");
                 }
                 else
                 {

@@ -27,6 +27,8 @@ public class PlayerControls : MonoBehaviour
 
     public float gravityScale = 1.5f;               //Player Gravity
     public float fallGravityMultiplier = 1.5f;      //Player fall gravity
+    public float stepRate = 0.3f;                   //How fast the step audio plays
+    float stepTimer = 0;
 
     [Header("Coyote Time And Jump Buffers")]
     public float coyoteTime = 0.2f;
@@ -77,10 +79,15 @@ public class PlayerControls : MonoBehaviour
     public bool grounded;
     private Rigidbody2D rb;
 
+    private Animator anim;
+    public float size;          // Determines size of player (used for sprite direction checking)
+
     void Awake()
     {
         inputActions = new InputActions();
         inputActions.Player.Enable();
+
+        anim = GetComponent<Animator>();
 
         rb = GetComponent<Rigidbody2D>();
         if (rb is null)
@@ -359,6 +366,24 @@ public class PlayerControls : MonoBehaviour
             aimUp = false;
         }
 
+        //------Animations-------
+        /* STATES:
+         * 0 = moving
+         * 1 = blocking
+         * 2 = hitstun
+         * 3 = inCutscene
+         * 4 = dying
+         * 5 = dead
+         */
+        if(curState != playerState.inCutscene)
+        {
+            anim.SetInteger("curState", (int)curState);
+            anim.SetFloat("xVelocity", Mathf.Abs(rb.velocity.x));
+            anim.SetFloat("yVelocity", rb.velocity.y);
+            anim.SetBool("grounded", grounded);
+        }
+
+        transform.localScale = new Vector3(size * direction, size, size);   //flips sprite of this object and its children (like hurtbox)
     }
 
     void FixedUpdate()
@@ -380,6 +405,18 @@ public class PlayerControls : MonoBehaviour
 
             rb.AddForce((Vector2.right * speed) * h); //Increases speed
             rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -maxSpeed, maxSpeed), rb.velocity.y); //Limits the player's speed
+
+            if(grounded && h != 0)
+            {
+                stepTimer -= Time.deltaTime;
+
+                if(stepTimer <= 0)
+                {
+                    int step = Random.Range(1, 5);
+                    AudioManager.Instance.Play("Step5");
+                    stepTimer = stepRate;
+                }
+            }
         }
     }
 
