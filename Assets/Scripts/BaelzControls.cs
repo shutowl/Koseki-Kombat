@@ -17,6 +17,7 @@ public class BaelzControls : MonoBehaviour
 
     public float speed = 10f;
     public float jumpForce = 600f;
+    public float size = 2.5f;
     float attackTimer;
     float rngCounter = 0f;  // Time between each attack
     int attackNum = 0;      // Used for attack timings
@@ -128,7 +129,7 @@ public class BaelzControls : MonoBehaviour
                             storedDie.transform.DOMoveY(transform.position.y + 5, 0.5f).SetEase(Ease.InCubic);
                             storedDie.GetComponent<Dice>().SetRollable(false);
 
-                            attackTimer = 1f;
+                            attackTimer = 0.5f;
                             attackStep = 5;
                         }
                     }
@@ -200,6 +201,7 @@ public class BaelzControls : MonoBehaviour
                                 bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
                             }
                             fireRateTimer = fireRate;
+                            AudioManager.Instance.PlayOneShot("Bullet2");
                         }
 
                         if (attackTimer <= 0)
@@ -217,7 +219,7 @@ public class BaelzControls : MonoBehaviour
                     {
                         attack2Counter = 0;
                         rb.AddForce(new Vector2(0, jumpForce));
-                        //AudioManager.Instance.Play("Jump");
+                        AudioManager.Instance.Play("Jump");
 
                         attackTimer = 0.5f;
                         attackStep = 2;
@@ -231,6 +233,7 @@ public class BaelzControls : MonoBehaviour
                         {
                             transform.localEulerAngles = new Vector3(0, 0, 180);
                             rb.gravityScale = -1;
+                            GetComponent<SpriteRenderer>().flipX = true;
 
                             attackStep = 3;
                         }
@@ -241,7 +244,7 @@ public class BaelzControls : MonoBehaviour
                         if (grounded)
                         {
                             direction = (Camera.main.transform.position.x - transform.position.x > 0) ? 1 : -1;
-                            transform.DOMoveX(Camera.main.transform.position.x + (9 * direction), 5).SetEase(Ease.OutSine);
+                            transform.DOMoveX(Camera.main.transform.position.x + (9 * direction), 3).SetEase(Ease.OutSine);
 
                             attackTimer = 2f;
                             attackStep = 4;
@@ -287,6 +290,7 @@ public class BaelzControls : MonoBehaviour
 
                                 bullet = Instantiate(bullets[0], pos, rot);
                                 bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+                                AudioManager.Instance.PlayOneShot("Bullet2");
                             }
                             else if((difficulty >= 3) && (attack2Counter % 4 == 2 || attack2Counter % 4 == 0)) //2
                             {
@@ -309,6 +313,7 @@ public class BaelzControls : MonoBehaviour
 
                                 bullet = Instantiate(bullets[0], pos, rot);
                                 bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+                                AudioManager.Instance.PlayOneShot("Bullet2");
                             }
                             else if (attack2Counter % 4 == 1) // 3
                             {
@@ -321,6 +326,7 @@ public class BaelzControls : MonoBehaviour
 
                                 GameObject bullet = Instantiate(bullets[0], pos, rot);
                                 bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+                                AudioManager.Instance.PlayOneShot("Bullet2");
                             }
 
                             fireRateTimer = fireRate;
@@ -331,7 +337,7 @@ public class BaelzControls : MonoBehaviour
                         if(attackTimer <= 0 && Mathf.Abs(Camera.main.transform.position.x - transform.position.x) >= 8.9f)
                         {
                             direction = (Camera.main.transform.position.x - transform.position.x > 0) ? 1 : -1;
-                            transform.DOMoveX(Camera.main.transform.position.x + (9 * direction), 5).SetEase(Ease.InOutSine);
+                            transform.DOMoveX(Camera.main.transform.position.x + (9 * direction), 3).SetEase(Ease.InOutSine);
 
                             attackTimer = 2f;
                             attackStep = 5;
@@ -376,6 +382,7 @@ public class BaelzControls : MonoBehaviour
 
                                 bullet = Instantiate(bullets[0], pos, rot);
                                 bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+                                AudioManager.Instance.PlayOneShot("Bullet2");
                             }
                             else if ((difficulty >= 3) && (attack2Counter % 4 == 2 || attack2Counter % 4 == 0)) //2
                             {
@@ -398,6 +405,7 @@ public class BaelzControls : MonoBehaviour
 
                                 bullet = Instantiate(bullets[0], pos, rot);
                                 bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+                                AudioManager.Instance.PlayOneShot("Bullet2");
                             }
                             else if(attack2Counter % 4 == 1) // 3
                             {
@@ -410,17 +418,19 @@ public class BaelzControls : MonoBehaviour
 
                                 GameObject bullet = Instantiate(bullets[0], pos, rot);
                                 bullet.GetComponent<EnemyBullet>().SetDirection(x, y);
+                                AudioManager.Instance.PlayOneShot("Bullet2");
                             }
 
                             fireRateTimer = fireRate;
                             attack2Counter++;
                         }
 
-                        //Move other direction
+                        //Finish attack
                         if (attackTimer <= 0 && Mathf.Abs(Camera.main.transform.position.x - transform.position.x) >= 8.9f)
                         {
                             transform.localEulerAngles = new Vector3(0, 0, 0);
                             rb.gravityScale = 1;
+                            GetComponent<SpriteRenderer>().flipX = false;
 
                             curState = enemyState.idle;
                         }
@@ -429,9 +439,214 @@ public class BaelzControls : MonoBehaviour
 
                 // Attack 3: Jump high offscreen, then slam down at the player's position. Lasers shoot from the ground after landing.
                 case 3:
+                    //Jump
                     if(attackStep == 1)
                     {
+                        rb.AddForce(new Vector2(0, jumpForce*3));
+                        AudioManager.Instance.Play("Jump");
+                        GetComponent<BoxCollider2D>().enabled = false;
 
+                        attackTimer = 2f;
+
+                        danger = Instantiate(dangerIndicator, new Vector2(-100, -100), Quaternion.identity);
+                        danger.GetComponent<DangerIndicator>().lifeTime = attackTimer;
+                        delayedPos = player.transform.position;
+
+                        attackStep = 2;
+                    }
+                    //indicator
+                    if(attackStep == 2)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        //indicator
+                        if(transform.position.y >= 7f)
+                        {
+                            Vector3 smoothedPos = Vector3.Lerp(delayedPos, player.transform.position, 0.5f * Time.deltaTime);
+                            delayedPos = smoothedPos;
+                            if (danger != null) danger.transform.position = new Vector3(delayedPos.x, -4.5f);
+                        }
+
+                        if(attackTimer <= 0)
+                        {
+                            transform.position = new Vector2(delayedPos.x, 7f);
+                            rb.velocity = Vector2.zero;
+                            rb.AddForce(Vector2.down * 5000f);
+
+                            attackStep = 3;
+                        }
+                    }
+                    //re-enable collider
+                    if(attackStep == 3)
+                    {
+                        if(transform.position.y <= 2f)
+                        {
+                            GetComponent<BoxCollider2D>().enabled = true;
+                            attackStep = 4;
+                        }
+                    }
+                    if(attackStep == 4)
+                    {
+                        if (grounded)
+                        {
+                            for(int i = 0; i < (5 + Mathf.Pow(difficulty, 2)); i++)
+                            {
+                                GameObject bullet = Instantiate(bullets[0], transform.position, Quaternion.Euler(0, 0, Random.Range(0f, 360f)));
+                                bullet.GetComponent<EnemyBullet>().EnablePhysics();
+                                bullet.GetComponent<EnemyBullet>().SetDirection(Random.Range(-1.5f, 1.5f), Random.Range(2f, 3f));
+                                bullet.GetComponent<EnemyBullet>().SetForce(Random.Range(200f, 300f));
+                            }
+
+                            CameraShake(1, 0.5f, 200, 10);
+
+                            attackTimer = 0f;
+                            attackStep = 5;
+                        }
+                    }
+                    if(attackStep == 5)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        if(attackTimer <= 0)
+                        {
+                            float laserTime = 1f;
+                            attackTimer = 0.6f - (difficulty * 0.05f);
+
+                            laserIndicator = Instantiate(bullets[1], transform.position + new Vector3((4 - (difficulty/6)), -3), Quaternion.identity);
+                            laserIndicator.GetComponent<Laser>().indicator = true;
+                            laserIndicator.GetComponent<Laser>().lifeTime = laserTime;
+                            laserIndicator.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+
+                            laserIndicator = Instantiate(bullets[1], transform.position + new Vector3(-(4 - (difficulty / 6)), -3), Quaternion.identity);
+                            laserIndicator.GetComponent<Laser>().indicator = true;
+                            laserIndicator.GetComponent<Laser>().lifeTime = laserTime;
+                            laserIndicator.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+
+                            GameObject laser = Instantiate(bullets[1], transform.position + new Vector3((4 - (difficulty / 6)), -3), Quaternion.identity);
+                            laser.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+                            laser.GetComponent<Laser>().SetLifeTime(0.5f);
+                            laser.GetComponent<Laser>().SetColor(Color.red);
+                            laser.GetComponent<Laser>().delay = laserTime;
+
+                            laser = Instantiate(bullets[1], transform.position + new Vector3(-(4 - (difficulty / 6)), -3), Quaternion.identity);
+                            laser.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+                            laser.GetComponent<Laser>().SetLifeTime(0.5f);
+                            laser.GetComponent<Laser>().SetColor(Color.cyan);
+                            laser.GetComponent<Laser>().delay = laserTime;
+
+                            attackStep = 6;
+                        }
+                    }
+                    if(attackStep == 6)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        if(attackTimer <= 0)
+                        {
+                            float laserTime = 1f;
+                            attackTimer = 0.6f - (difficulty * 0.05f);
+
+                            laserIndicator = Instantiate(bullets[1], transform.position + new Vector3((4 - (difficulty / 6)) * 2, -3), Quaternion.identity);
+                            laserIndicator.GetComponent<Laser>().indicator = true;
+                            laserIndicator.GetComponent<Laser>().lifeTime = laserTime;
+                            laserIndicator.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+
+                            laserIndicator = Instantiate(bullets[1], transform.position + new Vector3(-(4 - (difficulty / 6)) * 2, -3), Quaternion.identity);
+                            laserIndicator.GetComponent<Laser>().indicator = true;
+                            laserIndicator.GetComponent<Laser>().lifeTime = laserTime;
+                            laserIndicator.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+
+                            GameObject laser = Instantiate(bullets[1], transform.position + new Vector3((4 - (difficulty / 6)) * 2, -3), Quaternion.identity);
+                            laser.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+                            laser.GetComponent<Laser>().SetLifeTime(0.5f);
+                            laser.GetComponent<Laser>().SetColor(Color.cyan);
+                            laser.GetComponent<Laser>().delay = laserTime;
+
+                            laser = Instantiate(bullets[1], transform.position + new Vector3(-(4 - (difficulty / 6)) * 2, -3), Quaternion.identity);
+                            laser.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+                            laser.GetComponent<Laser>().SetLifeTime(0.5f);
+                            laser.GetComponent<Laser>().SetColor(Color.red);
+                            laser.GetComponent<Laser>().delay = laserTime;
+
+                            attackStep = 7;
+                        }
+                    }
+                    if(attackStep == 7)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        if (attackTimer <= 0)
+                        {
+                            float laserTime = 1f;
+                            attackTimer = 0.6f - (difficulty * 0.05f);
+
+                            laserIndicator = Instantiate(bullets[1], transform.position + new Vector3((4 - (difficulty / 6)) * 3, -3), Quaternion.identity);
+                            laserIndicator.GetComponent<Laser>().indicator = true;
+                            laserIndicator.GetComponent<Laser>().lifeTime = laserTime;
+                            laserIndicator.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+
+                            laserIndicator = Instantiate(bullets[1], transform.position + new Vector3(-(4 - (difficulty / 6)) * 3, -3), Quaternion.identity);
+                            laserIndicator.GetComponent<Laser>().indicator = true;
+                            laserIndicator.GetComponent<Laser>().lifeTime = laserTime;
+                            laserIndicator.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+
+                            GameObject laser = Instantiate(bullets[1], transform.position + new Vector3((4 - (difficulty / 6)) * 3, -3), Quaternion.identity);
+                            laser.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+                            laser.GetComponent<Laser>().SetLifeTime(0.5f);
+                            laser.GetComponent<Laser>().SetColor(Color.red);
+                            laser.GetComponent<Laser>().delay = laserTime;
+
+                            laser = Instantiate(bullets[1], transform.position + new Vector3(-(4 - (difficulty / 6)) * 3, -3), Quaternion.identity);
+                            laser.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+                            laser.GetComponent<Laser>().SetLifeTime(0.5f);
+                            laser.GetComponent<Laser>().SetColor(Color.cyan);
+                            laser.GetComponent<Laser>().delay = laserTime;
+
+                            attackStep = 8;
+                        }
+                    }
+                    if(attackStep == 8)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        if (attackTimer <= 0)
+                        {
+                            float laserTime = 1f;
+                            attackTimer = 1f;
+
+                            laserIndicator = Instantiate(bullets[1], transform.position + new Vector3((4 - (difficulty / 6)) * 4, -3), Quaternion.identity);
+                            laserIndicator.GetComponent<Laser>().indicator = true;
+                            laserIndicator.GetComponent<Laser>().lifeTime = laserTime;
+                            laserIndicator.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+
+                            laserIndicator = Instantiate(bullets[1], transform.position + new Vector3(-(4 - (difficulty / 6)) * 4, -3), Quaternion.identity);
+                            laserIndicator.GetComponent<Laser>().indicator = true;
+                            laserIndicator.GetComponent<Laser>().lifeTime = laserTime;
+                            laserIndicator.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+
+                            GameObject laser = Instantiate(bullets[1], transform.position + new Vector3((4 - (difficulty / 6)) * 4, -3), Quaternion.identity);
+                            laser.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+                            laser.GetComponent<Laser>().SetLifeTime(0.5f);
+                            laser.GetComponent<Laser>().SetColor(Color.cyan);
+                            laser.GetComponent<Laser>().delay = laserTime;
+
+                            laser = Instantiate(bullets[1], transform.position + new Vector3(-(4 - (difficulty / 6)) * 4, -3), Quaternion.identity);
+                            laser.GetComponent<Laser>().SetPositions(Vector2.zero, Vector2.up * 20f);
+                            laser.GetComponent<Laser>().SetLifeTime(0.5f);
+                            laser.GetComponent<Laser>().SetColor(Color.red);
+                            laser.GetComponent<Laser>().delay = laserTime;
+
+                            attackStep = 9;
+                        }
+                    }
+                    if(attackStep == 9)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        if(attackTimer <= 0)
+                        {
+                            curState = enemyState.idle;
+                        }
                     }
                     break;
 
@@ -483,7 +698,7 @@ public class BaelzControls : MonoBehaviour
         //Counters and Timers
         if (grounded && rngCounter <= 0 && curState != enemyState.inCutscene)
         {
-            rngCounter = Mathf.Clamp(Random.Range(1f, 2f), 0.2f, 10f);  //from 1 to [actionTimer] seconds
+            rngCounter = Random.Range(0.5f, 1f);
             curState = enemyState.attacking;
             attackTimer = 1f;
 
@@ -491,7 +706,7 @@ public class BaelzControls : MonoBehaviour
             //weighted RNG for attacks
             if (attacksTillDice > 0)
             {
-                RNG = Random.Range(1, 3);               //1-2
+                RNG = Random.Range(1, 4);               //1-3
 
                 /*
                 attackNum = RNG;
@@ -503,7 +718,7 @@ public class BaelzControls : MonoBehaviour
                 */
 
                 attackNum = RNG;
-                //attackNum = 2;
+                //attackNum = 3;    //Debug for testing specific attacks
                 lastAttack = attackNum;
 
                 attacksTillDice--;
@@ -515,12 +730,13 @@ public class BaelzControls : MonoBehaviour
             }
 
 
-            //attackNum = 0;  //Debug for testing specific attacks
             //difficulty = 1; //Debug for specific difficulties
 
             attackStep = 1; //Reset attack step to 1 after each attack
             direction = (player.transform.position.x - transform.position.x > 0) ? 1 : -1;  //enemy faces towards player upon landing
         }
+
+        transform.localScale = new Vector3(size * direction, size, size);   //flips sprite of this object and its children (like hurtbox)
     }
 
     private void OnTriggerEnter2D(Collider2D col)

@@ -64,7 +64,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.0027990341, y: -0.47031885}
+  m_Offset: {x: -0.019042581, y: -0.47031885}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -75,7 +75,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.75929165, y: 0.13387656}
+  m_Size: {x: 0.30789798, y: 0.13387656}
   m_EdgeRadius: 0
 --- !u!1 &502949373971383415
 GameObject:
@@ -110,7 +110,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 5.98, y: 1.43, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
+  m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1314336970085285438}
@@ -157,8 +157,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.9433962, g: 0.25364897, b: 0.25364897, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 59d440b6ce375fb47844c0328804650d, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -200,18 +200,18 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.021841586, y: -0.111635014}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 2, y: 1}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.53889894, y: 0.77672994}
   m_EdgeRadius: 0
 --- !u!50 &140597459702318796
 Rigidbody2D:
@@ -281,11 +281,13 @@ MonoBehaviour:
   curState: 0
   speed: 10
   jumpForce: 800
+  size: 2.5
   bullets:
   - {fileID: 7787239517612656393, guid: 56cffaf89fef150488fef4400eaea5ee, type: 3}
+  - {fileID: 2115821944158159236, guid: 97fbc5e1d47493d448828e48c24fc82e, type: 3}
   dice: {fileID: 7704072627286850184, guid: 74684c8876d8d5e4b87db3ff943a6633, type: 3}
   grounded: 0
-  dangerIndicator: {fileID: 0}
+  dangerIndicator: {fileID: 9082269498407720087, guid: 5682a4323fe9b554999d4bf0f252c106, type: 3}
 --- !u!114 &9187666631518033989
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298,7 +300,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab078bcffc4265848b067ae3d8638e50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 50
+  maxHealth: 3000
   HPSlider: {fileID: 0}
   bossNameText: {fileID: 0}
   bossHealthText: {fileID: 0}

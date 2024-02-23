@@ -125,7 +125,10 @@ public class PlayerControls : MonoBehaviour
 
                 jumpBufferCounter = 0f;
 
-                //AudioManager.Instance.Play("JumpPlayer");
+                if(doubleJump)
+                    AudioManager.Instance.PlayOneShot("Jump");
+                else
+                    AudioManager.Instance.PlayOneShot("DoubleJump");
             }
             //Jump Buffer
             if (inputActions.Player.Jump.WasPressedThisFrame())
@@ -291,6 +294,7 @@ public class PlayerControls : MonoBehaviour
                 }
 
                 fireTimer = fireRate;
+                AudioManager.Instance.PlayOneShot("Bullet3");
             }
         }
 
@@ -412,8 +416,8 @@ public class PlayerControls : MonoBehaviour
 
                 if(stepTimer <= 0)
                 {
-                    int step = Random.Range(1, 5);
-                    AudioManager.Instance.Play("Step5");
+                    int step = Random.Range(1, 11);
+                    AudioManager.Instance.PlayOneShot("Step" + step);
                     stepTimer = stepRate;
                 }
             }
@@ -433,7 +437,7 @@ public class PlayerControls : MonoBehaviour
         flashOn = false;
 
         shooting = false;
-        //AudioManager.Instance.Play("Damaged");
+        AudioManager.Instance.Play("Hurt");
     }
 
 }

@@ -34,7 +34,7 @@ public class AudioManager : MonoBehaviour
 	}
 	
 
-	// Play a single clip through the sound effects source.
+	// Will only play one identical sound at a time
 	public void Play(string name)
 	{
 		AudioClip clip = null;
@@ -62,6 +62,26 @@ public class AudioManager : MonoBehaviour
         {
 			Debug.LogError("Sound named '" + name + "' not found! (Check for typos?)");
         }
+	}
+
+	// Will overlap if played with other sounds
+	public void PlayOneShot(string name)
+    {
+		AudioClip clip = null;
+		for (int i = 0; i < sounds.Length; i++)
+		{
+			if (name.Equals(sounds[i].name))
+			{
+				clip = sounds[i].clip;
+				effectsSource.PlayOneShot(clip);
+
+				break;
+			}
+		}
+		if (clip == null)
+		{
+			Debug.LogError("Sound named '" + name + "' not found! (Check for typos?)");
+		}
 	}
 
 	// Play a single clip through the music source.

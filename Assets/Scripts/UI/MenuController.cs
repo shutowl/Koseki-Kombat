@@ -60,10 +60,12 @@ public class MenuController : MonoBehaviour
             {
                 if(menuIndex == 0)
                 {
+                    AudioManager.Instance.Play("MenuSelect");
                     gameStarting = true;
                 }
                 else if(menuIndex == 1)
                 {
+                    AudioManager.Instance.Play("MenuSelect");
                     OpenOptions();
                 }
             }
@@ -92,6 +94,7 @@ public class MenuController : MonoBehaviour
                     arrows[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(-arrowPositions[0].x, arrowPositions[0].y);
                     menuIndex = 0;
                 }
+                AudioManager.Instance.Play("MenuMove");
             }
         }
 
@@ -111,6 +114,7 @@ public class MenuController : MonoBehaviour
                     arrows[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(-arrowPositions[0].x, arrowPositions[0].y);
                     menuIndex = 0;
                 }
+                AudioManager.Instance.Play("MenuMove");
             }
         }
 

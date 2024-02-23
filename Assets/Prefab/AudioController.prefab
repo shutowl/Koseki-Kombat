@@ -142,7 +142,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.05
+  m_Volume: 0.025
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -248,13 +248,51 @@ MonoBehaviour:
   - name: BaelzText
     clip: {fileID: 8300000, guid: 8fdcba25741006c46bbc3f3d094102f0, type: 3}
   - name: Step1
-    clip: {fileID: 8300000, guid: cd9a9edc735257f4dbbf4a3e64e3bc38, type: 3}
+    clip: {fileID: 8300000, guid: 65f5fa3426407414a8487fc5f72f3ff2, type: 3}
   - name: Step2
-    clip: {fileID: 8300000, guid: 54ad9d6a95466b24f878fcd328dba587, type: 3}
+    clip: {fileID: 8300000, guid: 34c29fd1231dee647a2e7772c8aff2c7, type: 3}
   - name: Step3
-    clip: {fileID: 8300000, guid: 057e8e198cb373a47b9c73063f208f4d, type: 3}
+    clip: {fileID: 8300000, guid: 689afd4f60203004e8c539937e140cae, type: 3}
   - name: Step4
-    clip: {fileID: 8300000, guid: 8d7116fb3d582974db5ad5dc8a7a068d, type: 3}
+    clip: {fileID: 8300000, guid: 65ac1fc9022f9174f8fa047f95f06006, type: 3}
+  - name: Step5
+    clip: {fileID: 8300000, guid: 9186ad48575f40e448b50b0f8c7bd9d7, type: 3}
+  - name: Step6
+    clip: {fileID: 8300000, guid: da3f773e9f43b9a43ae7524ffeaedd79, type: 3}
+  - name: Step7
+    clip: {fileID: 8300000, guid: 71637b35f2be8d64fae45ecdcac52c10, type: 3}
+  - name: Step8
+    clip: {fileID: 8300000, guid: c0b961721d252b449879f9cbdbc754eb, type: 3}
+  - name: Step9
+    clip: {fileID: 8300000, guid: 1fd8b1c82f1e1bd4c9e9ac87624eb7c0, type: 3}
+  - name: Step10
+    clip: {fileID: 8300000, guid: 0ca1c7d11c3dfcc4a951196a92cf1e5b, type: 3}
+  - name: Bullet1
+    clip: {fileID: 8300000, guid: 21a472500a829a646b067d35c2e318ad, type: 3}
+  - name: Bullet1
+    clip: {fileID: 8300000, guid: 302eb2583c522fd459def5355dec5ec2, type: 3}
+  - name: Bullet2
+    clip: {fileID: 8300000, guid: ed8c9eb1e61f8724985634cb23c3f07e, type: 3}
+  - name: Bullet3
+    clip: {fileID: 8300000, guid: 21a472500a829a646b067d35c2e318ad, type: 3}
+  - name: Laser1
+    clip: {fileID: 8300000, guid: 870d1cdf8c0d04a4bb919422e42a7560, type: 3}
+  - name: Jump
+    clip: {fileID: 8300000, guid: c8c4f7446d6e7de4a92fcf170c407d74, type: 3}
+  - name: DoubleJump
+    clip: {fileID: 8300000, guid: 00b1454b74fd5594e9d125ce05e08faf, type: 3}
+  - name: Hurt
+    clip: {fileID: 8300000, guid: add537adcd4e6af4abb01d25806ec4fc, type: 3}
+  - name: Drumroll
+    clip: {fileID: 8300000, guid: fe764d5678ff4a841968672ce311b1ad, type: 3}
+  - name: Cymbal
+    clip: {fileID: 8300000, guid: f61adaeb88a47284aa81223818d69420, type: 3}
+  - name: MenuMove
+    clip: {fileID: 8300000, guid: f1340cb401b6ff64d943d2029621eab8, type: 3}
+  - name: MenuSelect
+    clip: {fileID: 8300000, guid: 6d0f685e3587de44b96002a37ee58f2c, type: 3}
+  - name: Beep
+    clip: {fileID: 8300000, guid: 019103edd0f9ce742acad2915b2577b3, type: 3}
   music:
   - name: PSYCHO
     clip: {fileID: 8300000, guid: e90c328a1b69d464eaa7cff551b53e05, type: 3}

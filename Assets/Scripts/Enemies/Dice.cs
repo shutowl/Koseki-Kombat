@@ -15,6 +15,7 @@ public class Dice : MonoBehaviour
     [SerializeField] int face = 1;  //from 1-6
     bool rolling;
     bool rollable;
+    bool cymbalPlayed;
 
     public float faceChangeRate = 0.2f;
     float faceChangeTimer = 0;
@@ -25,6 +26,7 @@ public class Dice : MonoBehaviour
     {
         rollable = true;
         rolling = true;
+        cymbalPlayed = false;
         diceText.text = "";
 
         transform.DORotate(new Vector3(0, 0, 360), spawnDuration, RotateMode.FastBeyond360).SetEase(Ease.OutCubic);
@@ -53,6 +55,13 @@ public class Dice : MonoBehaviour
         if (rollTimer <= 0)
         {
             rolling = false;
+
+
+            if (!cymbalPlayed)
+            {
+                //AudioManager.Instance.Play("Cymbal");
+                cymbalPlayed = true;
+            }
         }
         else
         {
@@ -77,6 +86,8 @@ public class Dice : MonoBehaviour
             rollTimer = rollDuration;
 
             //Play dice roll sound
+            AudioManager.Instance.Play("Drumroll");
+            cymbalPlayed = false;
         }
     }
 

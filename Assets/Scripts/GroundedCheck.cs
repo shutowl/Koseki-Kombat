@@ -19,7 +19,7 @@ public class GroundedCheck : MonoBehaviour
 		{
 			player.grounded = true;
 
-			//AudioManager.Instance.Play("JumpLand");
+			AudioManager.Instance.PlayOneShot("Step" + Random.Range(1, 11));
 		}
 	}
 
