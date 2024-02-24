@@ -19,7 +19,11 @@ public class GroundedCheck : MonoBehaviour
 		{
 			player.grounded = true;
 
-			AudioManager.Instance.PlayOneShot("Step" + Random.Range(1, 11));
+			if(PlayerPrefs.GetInt("option1") == 1)
+            {
+				player.stepTimer = player.stepRate;
+				AudioManager.Instance.PlayOneShot("Step" + Random.Range(1, 11));
+			}
 		}
 	}
 

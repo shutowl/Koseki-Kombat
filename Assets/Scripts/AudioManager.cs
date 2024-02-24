@@ -114,7 +114,7 @@ public class AudioManager : MonoBehaviour
 
 	public void ChangeBGMVolume(float value)
 	{
-		musicSource.volume = value/100;
+		musicSource.volume = value/300;
 	}
 
 	public void ChangeSFXVolume(float value)

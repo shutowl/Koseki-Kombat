@@ -28,7 +28,7 @@ public class PlayerControls : MonoBehaviour
     public float gravityScale = 1.5f;               //Player Gravity
     public float fallGravityMultiplier = 1.5f;      //Player fall gravity
     public float stepRate = 0.3f;                   //How fast the step audio plays
-    float stepTimer = 0;
+    public float stepTimer = 0;
 
     [Header("Coyote Time And Jump Buffers")]
     public float coyoteTime = 0.2f;
@@ -70,6 +70,7 @@ public class PlayerControls : MonoBehaviour
     [Header("Other")]
     public ParticleSystem dust;
     bool paused = false;
+    bool feetClink;
 
     //Store Input Values
     private InputActions inputActions;
@@ -100,6 +101,7 @@ public class PlayerControls : MonoBehaviour
         blockCharges[1] = GameObject.Find("Block2").GetComponent<Image>();
         blockCharges[2] = GameObject.Find("Block3").GetComponent<Image>();
 
+        feetClink = (PlayerPrefs.GetInt("option1") == 1) ? true : false;
     }
 
     void Update()
@@ -410,7 +412,7 @@ public class PlayerControls : MonoBehaviour
             rb.AddForce((Vector2.right * speed) * h); //Increases speed
             rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -maxSpeed, maxSpeed), rb.velocity.y); //Limits the player's speed
 
-            if(grounded && h != 0)
+            if(feetClink && grounded && h != 0)
             {
                 stepTimer -= Time.deltaTime;
 
