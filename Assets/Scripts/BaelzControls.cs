@@ -493,7 +493,7 @@ public class BaelzControls : MonoBehaviour
                             {
                                 GameObject bullet = Instantiate(bullets[0], transform.position, Quaternion.Euler(0, 0, Random.Range(0f, 360f)));
                                 bullet.GetComponent<EnemyBullet>().EnablePhysics();
-                                bullet.GetComponent<EnemyBullet>().SetDirection(Random.Range(-1.5f, 1.5f), Random.Range(2f, 3f));
+                                bullet.GetComponent<EnemyBullet>().SetDirection(Random.Range(-0.5f, 0.5f), Random.Range(2f, 3f));
                                 bullet.GetComponent<EnemyBullet>().SetForce(Random.Range(200f, 300f));
                             }
 
@@ -726,7 +726,7 @@ public class BaelzControls : MonoBehaviour
             else
             {
                 attackNum = 0;
-                attacksTillDice = Random.Range(2, 4);   //2-3
+                attacksTillDice = Random.Range(3, 5);   //3-4
             }
 
 
