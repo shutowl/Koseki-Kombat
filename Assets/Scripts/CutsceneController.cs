@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
 
@@ -36,6 +37,8 @@ public class CutsceneController : MonoBehaviour
 
     public GameObject baeSpawnPoint;
     public GameObject explosion;
+    public Image portrait;
+    public Sprite[] portraits;
 
     private InputActions inputActions;
 
@@ -73,6 +76,7 @@ public class CutsceneController : MonoBehaviour
 
                 dialogueText.text = "";
                 speakerText.text = "Koseki Bijou";
+                portrait.sprite = portraits[0];
                 ShowDialogue();
 
                 player.GetComponent<Animator>().Play("Idle");
@@ -122,6 +126,7 @@ public class CutsceneController : MonoBehaviour
                     dialogueText.text = "";
 
                     speakerText.text = "Hakos Baelz";
+                    portrait.sprite = portraits[3];
                 }
                 else
                 {
@@ -193,6 +198,7 @@ public class CutsceneController : MonoBehaviour
                 scene = 6;
                 ShowDialogue();
                 dialogueText.text = "";
+                portrait.sprite = portraits[4];
             }
         }
         //Short delay before dialogue again
@@ -274,6 +280,7 @@ public class CutsceneController : MonoBehaviour
                     dialogueText.text = "";
 
                     speakerText.text = "Koseki Bijou";
+                    portrait.sprite = portraits[1];
 
                     scene = 9;
                 }
@@ -310,6 +317,7 @@ public class CutsceneController : MonoBehaviour
                     dialogueText.text = "";
 
                     speakerText.text = "Koseki Bijou";
+                    portrait.sprite = portraits[2];
 
                     scene = 10;
                 }
@@ -347,6 +355,7 @@ public class CutsceneController : MonoBehaviour
                     dialogueText.text = "";
 
                     speakerText.text = "Hakos Baelz";
+                    portrait.sprite = portraits[4];
 
                     scene = 11;
 
