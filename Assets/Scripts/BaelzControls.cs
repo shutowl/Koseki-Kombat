@@ -485,6 +485,7 @@ public class BaelzControls : MonoBehaviour
                             attackStep = 4;
                         }
                     }
+                    //slam into ground and spray bullets
                     if(attackStep == 4)
                     {
                         if (grounded)
@@ -503,6 +504,7 @@ public class BaelzControls : MonoBehaviour
                             attackStep = 5;
                         }
                     }
+                    //first lasers
                     if(attackStep == 5)
                     {
                         attackTimer -= Time.deltaTime;
@@ -537,6 +539,7 @@ public class BaelzControls : MonoBehaviour
                             attackStep = 6;
                         }
                     }
+                    //second lasers
                     if(attackStep == 6)
                     {
                         attackTimer -= Time.deltaTime;
@@ -571,6 +574,7 @@ public class BaelzControls : MonoBehaviour
                             attackStep = 7;
                         }
                     }
+                    //third lasers
                     if(attackStep == 7)
                     {
                         attackTimer -= Time.deltaTime;
@@ -605,6 +609,7 @@ public class BaelzControls : MonoBehaviour
                             attackStep = 8;
                         }
                     }
+                    //fourth lasers
                     if(attackStep == 8)
                     {
                         attackTimer -= Time.deltaTime;
@@ -639,12 +644,89 @@ public class BaelzControls : MonoBehaviour
                             attackStep = 9;
                         }
                     }
+                    //small delay to finish attack
                     if(attackStep == 9)
                     {
                         attackTimer -= Time.deltaTime;
 
                         if(attackTimer <= 0)
                         {
+                            curState = enemyState.idle;
+                        }
+                    }
+                    break;
+
+                // Attack 4: Jumps towards the center of the screen and summons many lasers at random angles
+                case 4:
+                    //Jump towards center of screen
+                    if (attackStep == 1)
+                    {
+                        direction = (Camera.main.transform.position.x - transform.position.x > 0) ? 1 : -1;
+                        float jumpForceX = Mathf.Abs(transform.position.x - Camera.main.transform.position.x) * direction * 50f;
+                        rb.AddForce(new Vector2(jumpForceX, jumpForce));
+
+                        attackTimer = 0.5f;
+                        attackStep = 2;
+                    }
+                    //Freeze position
+                    if (attackStep == 2)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        if (attackTimer <= 0 && rb.velocity.y <= 0.1f && (transform.position.x >= -0.1f && transform.position.x <= 0.1f))
+                        {
+                            rb.constraints = RigidbodyConstraints2D.FreezeAll;
+                            attackTimer = 0.25f;
+                            attackStep = 3;
+                        }
+                    }
+                    //Small delay
+                    if(attackStep == 3)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        if(attackTimer <= 0)
+                        {
+                            attackTimer = 5f;   //duration of attack
+                            attackStep = 4;
+                        }
+                    }
+                    //Rapid laser attack
+                    if(attackStep == 4)
+                    {
+                        attackTimer -= Time.deltaTime;
+
+                        float fireRate = 0.4f - (Mathf.Clamp(difficulty * 0.05f, 0, 0.3f));
+                        float laserDelay = 1f - (Mathf.Clamp(difficulty * 0.009f, 0, 0.5f));
+                        Vector3 startPos = new Vector2(Random.Range(-30f, 30f), Random.Range(-20, 20));
+                        Vector3 endPos = new Vector2(Random.Range(-10f, 10f), Random.Range(-4f, 5));
+
+                        //Make sure startPos is outside of camera view
+                        while (startPos.x > -13f && startPos.x < 13f && startPos.y > -7f && startPos.y < 8f)
+                        {
+                            startPos = new Vector2(Random.Range(-30f, 30f), Random.Range(-20, 20));
+                        }
+
+                        if (fireRateTimer > 0) fireRateTimer -= Time.deltaTime;
+                        else
+                        {
+                            laserIndicator = Instantiate(bullets[1], Vector2.zero, Quaternion.identity);
+                            laserIndicator.GetComponent<Laser>().indicator = true;
+                            laserIndicator.GetComponent<Laser>().lifeTime = laserDelay;
+                            laserIndicator.GetComponent<Laser>().SetPositions(startPos, endPos + 10*(endPos-startPos));
+
+                            GameObject laser = Instantiate(bullets[1], Vector2.zero, Quaternion.identity);
+                            laser.GetComponent<Laser>().SetPositions(startPos, endPos + 10 * (endPos - startPos));
+                            laser.GetComponent<Laser>().SetLifeTime(0.5f);
+                            laser.GetComponent<Laser>().SetColor((Random.Range(0,2) == 1) ? Color.red : Color.cyan);
+                            laser.GetComponent<Laser>().delay = laserDelay;
+
+                            fireRateTimer = fireRate;
+                        }
+
+                        if(attackTimer <= 0)
+                        {
+                            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                             curState = enemyState.idle;
                         }
                     }
@@ -718,7 +800,7 @@ public class BaelzControls : MonoBehaviour
                 */
 
                 attackNum = RNG;
-                //attackNum = 3;    //Debug for testing specific attacks
+                attackNum = 4;    //Debug for testing specific attacks
                 lastAttack = attackNum;
 
                 attacksTillDice--;
