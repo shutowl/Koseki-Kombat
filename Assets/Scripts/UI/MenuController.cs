@@ -21,6 +21,7 @@ public class MenuController : MonoBehaviour
     public Vector2[] arrowPositions;
     public GameObject mainWindow;
     public GameObject optionsWindow;
+    public GameObject startButton;
 
     public TextMeshProUGUI[] rightOptions;
     bool option1 = true;
@@ -84,6 +85,7 @@ public class MenuController : MonoBehaviour
                 }
                 else if(menuIndex == 3)
                 {
+                    AudioManager.Instance.Play("MenuSelect");
                     CloseOptions();
                 }
             }
@@ -91,7 +93,11 @@ public class MenuController : MonoBehaviour
             {
                 if(menuIndex == 0)
                 {
-                    AudioManager.Instance.Play("MenuSelect");
+                    AudioManager.Instance.Play("MenuStart");
+                    arrows[0].GetComponent<TextFlash>().on = true;
+                    arrows[1].GetComponent<TextFlash>().on = true;
+                    startButton.GetComponent<TextFlash>().on = true;
+
                     state = menuState.starting;
                     gameStarting = true;
                 }
@@ -106,6 +112,7 @@ public class MenuController : MonoBehaviour
         {
             if(state == menuState.options)
             {
+                AudioManager.Instance.Play("MenuCancel");
                 CloseOptions();
             }
         }

@@ -112,6 +112,7 @@ public class BaelzControls : MonoBehaviour
                             storedDie = Instantiate(dice, transform.position + new Vector3(dieDirection * 3, 5), Quaternion.identity);
                             storedDie.transform.DOMoveY(transform.position.y, 0.5f).SetEase(Ease.OutCubic);
                             GetComponent<BoxCollider2D>().enabled = false;
+                            GetComponentInChildren<Shield>().ShieldOn(true, -1);
 
                             attackTimer = 5f;
                             attackStep = 4;
@@ -143,6 +144,8 @@ public class BaelzControls : MonoBehaviour
                             Destroy(storedDie);
 
                             GetComponent<BoxCollider2D>().enabled = true;
+                            GetComponentInChildren<Shield>().ShieldOn(false, -1);
+
                             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                             curState = enemyState.idle;
                         }
@@ -746,10 +749,11 @@ public class BaelzControls : MonoBehaviour
             direction = (FindObjectOfType<PlayerControls>().transform.position.x - transform.position.x > 0) ? 1 : -1;
             rb.AddForce(new Vector2(200f * -direction, 400f));
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-            //GetComponent<BoxCollider2D>().enabled = false;
+            GetComponent<BoxCollider2D>().enabled = true;
             curState = enemyState.dead;
             GetComponent<Hazard>().SetActive(false);
             attackTimer = 1f;
+            GameObject.FindGameObjectWithTag("Hitbox").GetComponent<BoxCollider2D>().enabled = false;
 
             Debug.Log("Baelz defeated");
         }
@@ -780,7 +784,7 @@ public class BaelzControls : MonoBehaviour
         //Counters and Timers
         if (grounded && rngCounter <= 0 && curState != enemyState.inCutscene)
         {
-            rngCounter = Random.Range(0.5f, 1f);
+            rngCounter = Random.Range(0f, 0.5f);
             curState = enemyState.attacking;
             attackTimer = 1f;
 
@@ -788,20 +792,17 @@ public class BaelzControls : MonoBehaviour
             //weighted RNG for attacks
             if (attacksTillDice > 0)
             {
-                RNG = Random.Range(1, 4);               //1-3
+                RNG = Random.Range(1, 5);               //1-4
 
-                /*
+                
                 attackNum = RNG;
                 while(attackNum == lastAttack)
                 {
-                    attackNum = Random.Range(1, 2);
+                    attackNum = Random.Range(1, 5);
                 }
                 lastAttack = attackNum;
-                */
-
-                attackNum = RNG;
-                attackNum = 4;    //Debug for testing specific attacks
-                lastAttack = attackNum;
+                
+                //attackNum = 4;    //Debug for testing specific attacks
 
                 attacksTillDice--;
             }

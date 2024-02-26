@@ -11,12 +11,13 @@ public class MovingBG : MonoBehaviour
 
     private void Start()
     {
+        transform.position = Vector2.zero;
         resetTimer = resetTime;
     }
 
     void Update()
     {
-        transform.Translate(speed * Time.deltaTime * direction.normalized);
+        transform.Translate(speed * Time.unscaledDeltaTime * direction.normalized);
 
         resetTimer -= Time.unscaledDeltaTime;
         if(resetTimer <= 0)

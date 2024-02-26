@@ -34,6 +34,7 @@ public class PauseMenu : MonoBehaviour
             }
             else
             {
+                AudioManager.Instance.Play("MenuPause");
                 Pause();
             }
         }
@@ -48,9 +49,11 @@ public class PauseMenu : MonoBehaviour
                         Resume();
                         break;
                     case 1:
+                        AudioManager.Instance.Play("MenuSelect");
                         Restart();
                         break;
                     case 2:
+                        AudioManager.Instance.Play("MenuSelect");
                         ExitToMenu();
                         break;
                 }
@@ -69,6 +72,7 @@ public class PauseMenu : MonoBehaviour
 
                 arrows[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(arrowPositions[menuIndex].x, arrowPositions[menuIndex].y);
                 arrows[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(-arrowPositions[menuIndex].x, arrowPositions[menuIndex].y);
+                AudioManager.Instance.Play("MenuMove");
             }
 
             if (inputActions.UI.Up.WasPressedThisFrame())
@@ -79,6 +83,7 @@ public class PauseMenu : MonoBehaviour
 
                 arrows[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(arrowPositions[menuIndex].x, arrowPositions[menuIndex].y);
                 arrows[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(-arrowPositions[menuIndex].x, arrowPositions[menuIndex].y);
+                AudioManager.Instance.Play("MenuMove");
             }
         }
     }
@@ -93,6 +98,7 @@ public class PauseMenu : MonoBehaviour
 
     void Resume()
     {
+        AudioManager.Instance.Play("MenuUnpause");
         paused = false;
         pauseWindow.SetActive(false);
         Time.timeScale = 1f;
@@ -106,6 +112,7 @@ public class PauseMenu : MonoBehaviour
 
     void ExitToMenu()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("Menu");
     }
 }

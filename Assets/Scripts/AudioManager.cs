@@ -96,7 +96,8 @@ public class AudioManager : MonoBehaviour
                 {
 					clip = music[i].clip;
 					musicSource.Stop();
-					musicSource.PlayOneShot(clip);
+					musicSource.clip = clip;
+					musicSource.Play();
 					break;
 				}
 			}

@@ -141,7 +141,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 0.025
   m_Pitch: 1
   Loop: 1
@@ -290,9 +290,15 @@ MonoBehaviour:
   - name: MenuMove
     clip: {fileID: 8300000, guid: f1340cb401b6ff64d943d2029621eab8, type: 3}
   - name: MenuSelect
-    clip: {fileID: 8300000, guid: 6d0f685e3587de44b96002a37ee58f2c, type: 3}
+    clip: {fileID: 8300000, guid: d59f959140422f4418ddc458d800522d, type: 3}
   - name: Beep
     clip: {fileID: 8300000, guid: 019103edd0f9ce742acad2915b2577b3, type: 3}
+  - name: MenuStart
+    clip: {fileID: 8300000, guid: cc18736a51a856947b987e1238b36f1b, type: 3}
+  - name: MenuCancel
+    clip: {fileID: 8300000, guid: 32d0dd3d974e28642b5828bb72aec841, type: 3}
+  - name: MenuPause
+    clip: {fileID: 8300000, guid: 45e54fd5521ee734dbc231783b4267ef, type: 3}
   music:
   - name: PSYCHO
-    clip: {fileID: 8300000, guid: e90c328a1b69d464eaa7cff551b53e05, type: 3}
+    clip: {fileID: 8300000, guid: 81bda2ebf26543045bd98ff1c21b1ba0, type: 3}

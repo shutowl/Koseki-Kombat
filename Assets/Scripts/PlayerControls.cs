@@ -191,6 +191,7 @@ public class PlayerControls : MonoBehaviour
                     damagediFramesCounter = blockDuration;
                     hitstunFlashTimer = hitstunFlashRate;
                     flashOn = false;
+                    GetComponentInChildren<Shield>().ShieldOn(true, blockDuration);
                 }
 
                 shooting = false;
@@ -272,6 +273,7 @@ public class PlayerControls : MonoBehaviour
         else if(curState == playerState.inCutscene)
         {
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+            rb.velocity = Vector2.zero;
         }
 
         //-----SHOOTING-----

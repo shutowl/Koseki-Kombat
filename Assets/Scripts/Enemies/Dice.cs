@@ -62,6 +62,23 @@ public class Dice : MonoBehaviour
                 //AudioManager.Instance.Play("Cymbal");
                 cymbalPlayed = true;
             }
+            if(face <= 2)
+            {
+                diceText.color = new Color(0.07432276f, 0.7075472f, 0.01001244f);
+                diceText.text = "Reroll?";
+            }
+            else if(face <= 4)
+            {
+                diceText.color = new Color(0.735849f, 0.534522f, 0.0798327f);
+                diceText.text = "Reroll!!";
+            }
+            else
+            {
+                diceText.color = new Color(0.7372549f, 0.07843137f, 0.1113397f);
+                diceText.text = "Reroll!!!!";
+            }
+
+
         }
         else
         {
@@ -88,6 +105,7 @@ public class Dice : MonoBehaviour
             //Play dice roll sound
             AudioManager.Instance.Play("Drumroll");
             cymbalPlayed = false;
+            diceText.text = "";
         }
     }
 
