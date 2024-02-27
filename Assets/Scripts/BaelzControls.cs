@@ -50,6 +50,8 @@ public class BaelzControls : MonoBehaviour
     public GameObject timerSlider;
 
     Animator anim;
+    int diceRolls;
+    float totalDiff;
 
     void Start()
     {
@@ -63,7 +65,10 @@ public class BaelzControls : MonoBehaviour
         anim.Play("Idle");
 
         attacksTillDice = 0;
-        rngCounter = 1f;
+        rngCounter = 0.5f;
+
+        diceRolls = 0;
+        totalDiff = 0;
     }
 
     // Update is called once per frame
@@ -91,6 +96,7 @@ public class BaelzControls : MonoBehaviour
                     //Jump towards center of screen
                     if(attackStep == 1)
                     {
+                        diceRolls++;
                         direction = (Camera.main.transform.position.x - transform.position.x > 0) ? 1 : -1;
                         float jumpForceX = Mathf.Abs(transform.position.x - Camera.main.transform.position.x) * direction * 50f;
                         rb.AddForce(new Vector2(jumpForceX, jumpForce));
@@ -144,6 +150,7 @@ public class BaelzControls : MonoBehaviour
                         if (attackTimer <= 0 && !storedDie.GetComponent<Dice>().IsRolling())
                         {
                             difficulty = storedDie.GetComponent<Dice>().GetFace();
+                            totalDiff += difficulty;
                             Debug.Log("Next few attacks have a power of: " + difficulty);
                             storedDie.transform.DOMoveY(transform.position.y + 5, 0.5f).SetEase(Ease.InCubic);
                             storedDie.GetComponent<Dice>().SetRollable(false);
@@ -891,5 +898,10 @@ public class BaelzControls : MonoBehaviour
     void CameraShake(float duration, float strength, int vibrato, float randomness)
     {
         Camera.main.DOShakePosition(duration, strength, vibrato, randomness, true, ShakeRandomnessMode.Harmonic);
+    }
+
+    public string GetAverageDifficulty()
+    {
+        return (totalDiff / diceRolls).ToString("F2");
     }
 }

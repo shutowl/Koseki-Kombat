@@ -85,7 +85,7 @@ public class MenuController : MonoBehaviour
                 {
                     option1 = !option1;
                     rightOptions[0].text = (option1) ? "On" : "Off";
-                    AudioManager.Instance.Play("MenuMove");
+                    AudioManager.Instance.PlayOneShot("Step" + Random.Range(1, 11));
                 }
                 else if(menuIndex == 3)
                 {
@@ -223,7 +223,7 @@ public class MenuController : MonoBehaviour
                 {
                     option1 = !option1;
                     rightOptions[0].text = (option1) ? "On" : "Off";
-                    AudioManager.Instance.Play("MenuMove");
+                    AudioManager.Instance.PlayOneShot("Step" + Random.Range(1, 11));
                 }
                 if(menuIndex == 1)  //BGM Vol
                 {
@@ -257,7 +257,7 @@ public class MenuController : MonoBehaviour
                 {
                     option1 = !option1;
                     rightOptions[0].text = (option1) ? "On" : "Off";
-                    AudioManager.Instance.Play("MenuMove");
+                    AudioManager.Instance.PlayOneShot("Step" + Random.Range(1, 11));
                 }
                 if (menuIndex == 1)  //BGM Vol
                 {

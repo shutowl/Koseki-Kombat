@@ -45,6 +45,7 @@ public class CutsceneController : MonoBehaviour
     public TextMeshProUGUI winText;
     public TextMeshProUGUI winText2;
     public TextMeshProUGUI battleTimerText;
+    public TextMeshProUGUI avgDiffText;
     bool battleBegin;
     float battleTimer;
     public Image screenFade;
@@ -57,7 +58,7 @@ public class CutsceneController : MonoBehaviour
         inputActions.UI.Enable();
 
         HideUI();
-
+        
         screenFade.DOColor(new Color(0, 0, 0, 0), 1f).SetEase(Ease.OutCubic);
         playerScript = player.GetComponent<PlayerControls>();
         playerScript.curState = PlayerControls.playerState.inCutscene;
@@ -475,7 +476,7 @@ public class CutsceneController : MonoBehaviour
                     HideUI();
                     ShowDialogue();
 
-                    nextLine = "Ugh**.**.**.***** I'll get you next time Hakos Baelz";
+                    nextLine = "Dangit**.**.**.***** I'll get you next time, Hakos Baelz";
                     textSpeed = 0.05f;
                     textTimer = 0;
                     dialogueText.text = "";
@@ -487,6 +488,7 @@ public class CutsceneController : MonoBehaviour
 
                     scene = 30;
                 }
+                avgDiffText.text = "AVG Difficulty - " + baelzPrefab.GetComponent<BaelzControls>().GetAverageDifficulty();
             }
 
         }
@@ -590,7 +592,7 @@ public class CutsceneController : MonoBehaviour
         }
 
         //Fight LOSE
-        //Bijou says "Ugh... I'll get you next time Hakos Baelz"
+        //Bijou says "Dangit... I'll get you next time Hakos Baelz"
         else if(scene == 30)
         {
             textTimer -= Time.deltaTime;
@@ -636,7 +638,7 @@ public class CutsceneController : MonoBehaviour
                 if (nextLine[0] != '*')
                 {
                     dialogueText.text += nextLine[0];
-                    AudioManager.Instance.Play("BaelzText");
+                    AudioManager.Instance.Play("BijouText");
                 }
 
                 nextLine = nextLine.Remove(0, 1);
