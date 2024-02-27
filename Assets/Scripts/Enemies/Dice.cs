@@ -77,8 +77,6 @@ public class Dice : MonoBehaviour
                 diceText.color = new Color(0.7372549f, 0.07843137f, 0.1113397f);
                 diceText.text = "Reroll!!!!";
             }
-
-
         }
         else
         {
@@ -89,7 +87,6 @@ public class Dice : MonoBehaviour
         {
             delayTimer -= Time.deltaTime;
         }
-
     }
 
 
@@ -142,4 +139,5 @@ public class Dice : MonoBehaviour
             RollDie();
         }
     }
+
 }

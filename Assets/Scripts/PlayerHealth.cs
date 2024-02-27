@@ -29,7 +29,7 @@ public class PlayerHealth : MonoBehaviour
 
     void Update()
     {
-
+/*
         if (Keyboard.current.digit1Key.wasPressedThisFrame)         //Debug: Press 1 to take damage
         {
             Damage(20, 0.5f);
@@ -42,7 +42,7 @@ public class PlayerHealth : MonoBehaviour
         {
             SetMaxHealth(maxHealth + 20);
         }
-
+*/
 
         //Delay slider
         if (delayTimer > 0)
@@ -68,7 +68,7 @@ public class PlayerHealth : MonoBehaviour
 
             if (currentHealth <= 0)
             {
-                player.curState = PlayerControls.playerState.dead;
+                player.curState = PlayerControls.playerState.dying;
             }
             else
             {

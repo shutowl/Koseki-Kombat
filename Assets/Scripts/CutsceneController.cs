@@ -42,9 +42,12 @@ public class CutsceneController : MonoBehaviour
     public Sprite[] portraits;
 
     public GameObject winWindow;
+    public TextMeshProUGUI winText;
+    public TextMeshProUGUI winText2;
     public TextMeshProUGUI battleTimerText;
     bool battleBegin;
     float battleTimer;
+    public Image screenFade;
 
     private InputActions inputActions;
 
@@ -55,12 +58,14 @@ public class CutsceneController : MonoBehaviour
 
         HideUI();
 
+        screenFade.DOColor(new Color(0, 0, 0, 0), 1f).SetEase(Ease.OutCubic);
         playerScript = player.GetComponent<PlayerControls>();
         playerScript.curState = PlayerControls.playerState.inCutscene;
         baelzScript = baelz.GetComponent<BaelzControls>();
         baelzScript.curState = BaelzControls.enemyState.inCutscene;
 
         //Player starts offscreen and runs in
+        playerScript.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
         player.transform.position = playerStartPos;
         DOTmovePlayer = DOTween.Sequence();
         DOTmovePlayer.Append(player.transform.DOMove(playerEndPos, scene1Duration).SetEase(Ease.OutSine));
@@ -188,6 +193,7 @@ public class CutsceneController : MonoBehaviour
                 Instantiate(explosion, baeSpawnPoint.transform.position, Quaternion.identity);
                 baelzPrefab = Instantiate(baelz, baeSpawnPoint.transform.position, Quaternion.identity);
                 baelzPrefab.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezePosition;
+                baelzPrefab.GetComponent<BaelzControls>().direction = -1;
                 DOThover = DOTween.Sequence();
                 DOThover.Append(baelzPrefab.transform.DOMoveY(baeSpawnPoint.transform.position.y - 1, 2).SetEase(Ease.InOutSine));
                 DOThover.Append(baelzPrefab.transform.DOMoveY(baeSpawnPoint.transform.position.y, 2).SetEase(Ease.InOutSine));
@@ -426,40 +432,65 @@ public class CutsceneController : MonoBehaviour
         {
             playerScript.curState = PlayerControls.playerState.moving;
             player.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
-            baelzScript.curState = BaelzControls.enemyState.idle;
+            baelzPrefab.GetComponent<BaelzControls>().curState = BaelzControls.enemyState.idle;
             baelzPrefab.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
             baelzPrefab.GetComponent<BoxCollider2D>().enabled = true;
 
             DOThover.Kill();
 
-            battleBegin = true; 
+            battleBegin = true;
 
+            sceneTimer = 5f;
             scene = 14;
         }
         //Fight end
         else if(scene == 14)
         {
-            if(baelzPrefab.GetComponent<BaelzControls>().curState == BaelzControls.enemyState.inCutscene && playerScript.grounded)
+            if(sceneTimer > 0) sceneTimer -= Time.deltaTime;
+            else
             {
-                playerScript.curState = PlayerControls.playerState.inCutscene;
-                player.GetComponent<Animator>().SetFloat("xVelocity", 0);
-                player.GetComponent<Animator>().Play("Idle");
-                HideUI();
-                ShowDialogue();
+                if (baelzPrefab.GetComponent<BaelzControls>().curState == BaelzControls.enemyState.inCutscene && playerScript.grounded)
+                {
+                    playerScript.curState = PlayerControls.playerState.inCutscene;
+                    player.GetComponent<Animator>().SetFloat("xVelocity", 0);
+                    player.GetComponent<Animator>().Play("Idle");
+                    HideUI();
+                    ShowDialogue();
 
-                nextLine = "Heh***.***.***. Looks like you've improved,*** Koseki Bijou";
-                textSpeed = 0.05f;
-                textTimer = 0;
-                dialogueText.text = "";
+                    nextLine = "Heh***.***.***. Looks like you've improved,*** Koseki Bijou";
+                    textSpeed = 0.05f;
+                    textTimer = 0;
+                    dialogueText.text = "";
 
-                speakerText.text = "Hakos Baelz";
-                portrait.sprite = portraits[4];
+                    speakerText.text = "Hakos Baelz";
+                    portrait.sprite = portraits[4];
 
-                battleBegin = false;
+                    battleBegin = false;
 
-                scene = 15;
+                    scene = 15;
+                }
+                else if (playerScript.curState == PlayerControls.playerState.inCutscene && playerScript.grounded && baelzPrefab.GetComponent<BaelzControls>().grounded)
+                {
+                    baelzPrefab.GetComponent<BaelzControls>().curState = BaelzControls.enemyState.inCutscene;
+                    HideUI();
+                    ShowDialogue();
+
+                    nextLine = "Ugh**.**.**.***** I'll get you next time Hakos Baelz";
+                    textSpeed = 0.05f;
+                    textTimer = 0;
+                    dialogueText.text = "";
+
+                    speakerText.text = "Koseki Bijou";
+                    portrait.sprite = portraits[0];
+
+                    battleBegin = false;
+
+                    scene = 30;
+                }
             }
+
         }
+        //Fight WIN
         //Bae says "Heh... Looks like you've improved, Koseki Bijou"
         else if (scene == 15)
         {
@@ -476,7 +507,7 @@ public class CutsceneController : MonoBehaviour
                 textTimer = textSpeed;
             }
 
-            if (inputActions.UI.Confirm.WasPressedThisFrame())
+            if (inputActions.UI.Confirm.WasPressedThisFrame() && !FindObjectOfType<PauseMenu>().IsPaused())
             {
                 if (nextLine.Equals(""))
                 {
@@ -497,7 +528,7 @@ public class CutsceneController : MonoBehaviour
                 }
             }
         }
-        //Bae saya "Boom boom..."
+        //Bae says "Boom boom..."
         else if(scene == 16)
         {
             textTimer -= Time.deltaTime;
@@ -551,13 +582,118 @@ public class CutsceneController : MonoBehaviour
             var s = (time - m * 60);
             var ms = (int)((battleTimer - time) * 100);
             battleTimerText.text = "Time Taken - " + $"{m:00}.{s:00}.{ms:00}";
+            winText.text = "You Win!!";
+            winText2.text = ":D";
+
             sceneTimer = 1f;
+            scene = 19;
         }
-        else if(scene == 19)
+
+        //Fight LOSE
+        //Bijou says "Ugh... I'll get you next time Hakos Baelz"
+        else if(scene == 30)
+        {
+            textTimer -= Time.deltaTime;
+            if (textTimer <= 0 && !nextLine.Equals(""))
+            {
+                if (nextLine[0] != '*')
+                {
+                    dialogueText.text += nextLine[0];
+                    AudioManager.Instance.Play("BijouText");
+                }
+
+                nextLine = nextLine.Remove(0, 1);
+                textTimer = textSpeed;
+            }
+
+            if (inputActions.UI.Confirm.WasPressedThisFrame() && !FindObjectOfType<PauseMenu>().IsPaused())
+            {
+                if (nextLine.Equals(""))
+                {
+                    nextLine = "Bweh...";
+                    textSpeed = 0.05f;
+                    textTimer = 0;
+                    dialogueText.text = "";
+
+                    speakerText.text = "Koseki Bijou";
+                    portrait.sprite = portraits[0];
+
+                    scene = 31;
+                }
+                else
+                {
+                    dialogueText.text += nextLine.Replace("*", "");
+                    nextLine = "";
+                }
+            }
+        }
+        //Bijou says "Bweh..."
+        else if(scene == 31)
+        {
+            textTimer -= Time.deltaTime;
+            if (textTimer <= 0 && !nextLine.Equals(""))
+            {
+                if (nextLine[0] != '*')
+                {
+                    dialogueText.text += nextLine[0];
+                    AudioManager.Instance.Play("BaelzText");
+                }
+
+                nextLine = nextLine.Remove(0, 1);
+                textTimer = textSpeed;
+            }
+
+            if (inputActions.UI.Confirm.WasPressedThisFrame())
+            {
+                if (nextLine.Equals(""))
+                {
+                    HideDialogue();
+
+                    sceneTimer = 1f;
+                    scene = 32;
+                }
+                else
+                {
+                    dialogueText.text += nextLine.Replace("*", "");
+                    nextLine = "";
+                }
+            }
+        }
+        //Bijou blows up
+        else if(scene == 32)
         {
             sceneTimer -= Time.deltaTime;
 
-            if(sceneTimer <= 0)
+            if (sceneTimer <= 0)
+            {
+                Instantiate(explosion, player.transform.position, Quaternion.identity);
+                Destroy(player);
+
+                scene = 33;
+            }
+        }
+        //Lose screen
+        else if(scene == 33)
+        {
+            winWindow.GetComponent<RectTransform>().DOAnchorPosY(0, 1f).SetEase(Ease.OutCubic);
+            var time = (int)battleTimer;
+            var m = time / 60;
+            var s = (time - m * 60);
+            var ms = (int)((battleTimer - time) * 100);
+            battleTimerText.text = "Time Taken - " + $"{m:00}.{s:00}.{ms:00}";
+            winText.text = "Game Over";
+            winText2.text = ":(";
+
+            sceneTimer = 1f;
+            scene = 19;
+        }
+
+        //Press Z to return to menu
+        else if (scene == 19)
+        {
+            sceneTimer -= Time.deltaTime;
+
+            if (sceneTimer <= 0)
             {
                 if (inputActions.UI.Confirm.WasPressedThisFrame())
                 {
@@ -565,7 +701,6 @@ public class CutsceneController : MonoBehaviour
                 }
             }
         }
-
 
         //Timer
         if (battleBegin)

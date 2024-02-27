@@ -334,6 +334,8 @@ MonoBehaviour:
   face: 1
   faceChangeRate: 0.05
   diceText: {fileID: 7577210780988004907}
+  sliderRect: {fileID: 0}
+  timerSlider: {fileID: 0}
 --- !u!1 &8830547944835237730
 GameObject:
   m_ObjectHideFlags: 0

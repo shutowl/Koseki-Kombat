@@ -52,11 +52,11 @@ public class MenuController : MonoBehaviour
 
         gameStarting = false;
         screenFadeTimer = screenFadeDuration;
-        //Play Music
 
-        option1 = (PlayerPrefs.GetInt("option1", 1) == 1) ? true : false;
+        option1 = (PlayerPrefs.GetInt("option1", 1) == 1);
         bgmVol = PlayerPrefs.GetInt("bgmVol", 4);
-        sfxVol = PlayerPrefs.GetInt("sfxVol", 5);
+        sfxVol = PlayerPrefs.GetInt("sfxVol", 6);
+
 
         rightOptions[0].text = (option1) ? "On" : "Off";
         rightOptions[1].text = "";
@@ -65,10 +65,14 @@ public class MenuController : MonoBehaviour
         {
             rightOptions[1].text += "I";
         }
+        AudioManager.Instance.ChangeBGMVolume(bgmVol);
         for (int i = 0; i < sfxVol; i++)
         {
             rightOptions[2].text += "I";
         }
+        AudioManager.Instance.ChangeSFXVolume(sfxVol);
+
+        AudioManager.Instance.PlayMusic("MenuBGM");
     }
 
     private void Update()

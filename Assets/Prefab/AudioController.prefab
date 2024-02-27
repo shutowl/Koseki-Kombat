@@ -298,7 +298,13 @@ MonoBehaviour:
   - name: MenuCancel
     clip: {fileID: 8300000, guid: 32d0dd3d974e28642b5828bb72aec841, type: 3}
   - name: MenuPause
-    clip: {fileID: 8300000, guid: 45e54fd5521ee734dbc231783b4267ef, type: 3}
+    clip: {fileID: 8300000, guid: 509ce19a0fe58664a84bb7bfa57da5df, type: 3}
+  - name: MenuUnpause
+    clip: {fileID: 8300000, guid: f5499c1fced918c46aef47f34dc00193, type: 3}
+  - name: Shield
+    clip: {fileID: 8300000, guid: e7f8468f803c6ee41a52bfde20669bfc, type: 3}
   music:
   - name: PSYCHO
     clip: {fileID: 8300000, guid: 81bda2ebf26543045bd98ff1c21b1ba0, type: 3}
+  - name: MenuBGM
+    clip: {fileID: 8300000, guid: 8dcfc3bdcf765b248a237a08a71caf16, type: 3}

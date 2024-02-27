@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class PauseMenu : MonoBehaviour
 {
     public GameObject pauseWindow;
+    public GameObject winWindow;
     bool paused;
     int menuIndex = 0;
 
@@ -92,6 +93,7 @@ public class PauseMenu : MonoBehaviour
     {
         paused = true;
         pauseWindow.SetActive(true);
+        winWindow.SetActive(false);
         Time.timeScale = 0f;
         menuIndex = 0;
     }
@@ -101,6 +103,7 @@ public class PauseMenu : MonoBehaviour
         AudioManager.Instance.Play("MenuUnpause");
         paused = false;
         pauseWindow.SetActive(false);
+        winWindow.SetActive(true);
         Time.timeScale = 1f;
     }
 
@@ -114,5 +117,10 @@ public class PauseMenu : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("Menu");
+    }
+
+    public bool IsPaused()
+    {
+        return paused;
     }
 }

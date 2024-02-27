@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using DG.Tweening;
 
 public class BaelzControls : MonoBehaviour
@@ -11,7 +12,8 @@ public class BaelzControls : MonoBehaviour
         attacking,
         inCutscene,
         dying,
-        dead
+        dead,
+        waitingForPlayer
     }
     public enemyState curState;
 
@@ -24,7 +26,7 @@ public class BaelzControls : MonoBehaviour
     int attackStep = 1;     // Current step of current attack
     int lastAttack = 0;     // Last attack performed (prevents repeat attacks
     int attacksTillDice = 0; // attacks left till dice roll move
-    int direction = 1;
+    public int direction = 1;
     int difficulty = 1;     // Difficulty is determined by dice roll
 
     float fireRateTimer;
@@ -45,13 +47,20 @@ public class BaelzControls : MonoBehaviour
     GameObject danger;
     Vector3 delayedPos = Vector2.zero;
 
+    public GameObject timerSlider;
+
+    Animator anim;
 
     void Start()
     {
         healthBar = GetComponent<BossHealthBar>();
         rb = GetComponent<Rigidbody2D>();
-        curState = enemyState.idle;
+        curState = enemyState.inCutscene;
         player = GameObject.FindGameObjectWithTag("Player");
+        timerSlider = GameObject.Find("TimerSlider");
+        anim = GetComponent<Animator>();
+        anim.SetFloat("yVelocity", 0.2f);
+        anim.Play("Idle");
 
         attacksTillDice = 0;
         rngCounter = 1f;
@@ -88,6 +97,8 @@ public class BaelzControls : MonoBehaviour
 
                         attackTimer = 0.5f;
                         attackStep = 2;
+
+                        anim.Play("Jump");
                     }
                     //Freeze position
                     if (attackStep == 2)
@@ -99,6 +110,8 @@ public class BaelzControls : MonoBehaviour
                             rb.constraints = RigidbodyConstraints2D.FreezeAll;
                             attackTimer = 0.5f;
                             attackStep = 3;
+
+                            anim.Play("Charge");
                         }
                     }
                     //Summon Dice
@@ -108,13 +121,17 @@ public class BaelzControls : MonoBehaviour
 
                         if(attackTimer <= 0)
                         {
+                            attackTimer = 5f;
+
                             int dieDirection = (Random.Range(-1f, 1f) >= 0) ? 1 : -1; 
                             storedDie = Instantiate(dice, transform.position + new Vector3(dieDirection * 3, 5), Quaternion.identity);
                             storedDie.transform.DOMoveY(transform.position.y, 0.5f).SetEase(Ease.OutCubic);
+                            timerSlider.GetComponent<Slider>().maxValue = attackTimer;
+                            timerSlider.GetComponent<Slider>().value = attackTimer;
+                            timerSlider.GetComponent<RectTransform>().DOAnchorPosY(-15f, 1f).SetEase(Ease.OutCubic);
                             GetComponent<BoxCollider2D>().enabled = false;
                             GetComponentInChildren<Shield>().ShieldOn(true, -1);
 
-                            attackTimer = 5f;
                             attackStep = 4;
                         }
                     }
@@ -122,13 +139,15 @@ public class BaelzControls : MonoBehaviour
                     if(attackStep == 4)
                     {
                         attackTimer -= Time.deltaTime;
+                        timerSlider.GetComponent<Slider>().value -= Time.deltaTime;
 
-                        if(attackTimer <= 0 && !storedDie.GetComponent<Dice>().IsRolling())
+                        if (attackTimer <= 0 && !storedDie.GetComponent<Dice>().IsRolling())
                         {
                             difficulty = storedDie.GetComponent<Dice>().GetFace();
                             Debug.Log("Next few attacks have a power of: " + difficulty);
                             storedDie.transform.DOMoveY(transform.position.y + 5, 0.5f).SetEase(Ease.InCubic);
                             storedDie.GetComponent<Dice>().SetRollable(false);
+                            timerSlider.GetComponent<RectTransform>().DOAnchorPosY(15, 1f).SetEase(Ease.OutCubic);
 
                             attackTimer = 0.5f;
                             attackStep = 5;
@@ -148,6 +167,8 @@ public class BaelzControls : MonoBehaviour
 
                             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                             curState = enemyState.idle;
+
+                            anim.Play("Fall");
                         }
                     }
                     break;
@@ -163,6 +184,8 @@ public class BaelzControls : MonoBehaviour
 
                         attackTimer = 0.5f;
                         attackStep = 2;
+
+                        anim.Play("Jump");
                     }
                     //Lock boss in place
                     if(attackStep == 2)
@@ -175,6 +198,8 @@ public class BaelzControls : MonoBehaviour
 
                             attackTimer = 3f;
                             attackStep = 3;
+
+                            anim.Play("Charge");
                         }
                     }
                     //Shoot bullets in random directions
@@ -211,6 +236,8 @@ public class BaelzControls : MonoBehaviour
                         {
                             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                             curState = enemyState.idle;
+
+                            anim.Play("Fall");
                         }
                     }
                     break;
@@ -226,6 +253,8 @@ public class BaelzControls : MonoBehaviour
 
                         attackTimer = 0.5f;
                         attackStep = 2;
+
+                        anim.Play("Jump");
                     }
                     //Flip gravity
                     if(attackStep == 2)
@@ -251,6 +280,8 @@ public class BaelzControls : MonoBehaviour
 
                             attackTimer = 2f;
                             attackStep = 4;
+
+                            anim.Play("Charge");
                         }
                     }
                     //Shoot bullets downwards (alternate between 1, 2, 3 bullets, or maybe more if higher difficulty)
@@ -436,6 +467,7 @@ public class BaelzControls : MonoBehaviour
                             GetComponent<SpriteRenderer>().flipX = false;
 
                             curState = enemyState.idle;
+                            anim.Play("Fall");
                         }
                     }
                     break;
@@ -456,6 +488,8 @@ public class BaelzControls : MonoBehaviour
                         delayedPos = player.transform.position;
 
                         attackStep = 2;
+
+                        anim.Play("Jump");
                     }
                     //indicator
                     if(attackStep == 2)
@@ -467,7 +501,7 @@ public class BaelzControls : MonoBehaviour
                         {
                             Vector3 smoothedPos = Vector3.Lerp(delayedPos, player.transform.position, 0.5f * Time.deltaTime);
                             delayedPos = smoothedPos;
-                            if (danger != null) danger.transform.position = new Vector3(delayedPos.x, -4.5f);
+                            if (danger != null) danger.transform.position = new Vector3(delayedPos.x, -5.5f);
                         }
 
                         if(attackTimer <= 0)
@@ -505,6 +539,9 @@ public class BaelzControls : MonoBehaviour
 
                             attackTimer = 0f;
                             attackStep = 5;
+
+                            if (Random.Range(0, 5) == 0) anim.Play("Dead");
+                            else anim.Play("Idle");
                         }
                     }
                     //first lasers
@@ -656,6 +693,7 @@ public class BaelzControls : MonoBehaviour
                         {
                             curState = enemyState.idle;
                         }
+                        anim.Play("Idle");
                     }
                     break;
 
@@ -670,6 +708,8 @@ public class BaelzControls : MonoBehaviour
 
                         attackTimer = 0.5f;
                         attackStep = 2;
+
+                        anim.Play("Jump");
                     }
                     //Freeze position
                     if (attackStep == 2)
@@ -681,6 +721,8 @@ public class BaelzControls : MonoBehaviour
                             rb.constraints = RigidbodyConstraints2D.FreezeAll;
                             attackTimer = 0.25f;
                             attackStep = 3;
+
+                            anim.Play("Charge");
                         }
                     }
                     //Small delay
@@ -731,6 +773,8 @@ public class BaelzControls : MonoBehaviour
                         {
                             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                             curState = enemyState.idle;
+
+                            anim.Play("Fall");
                         }
                     }
                     break;
@@ -752,7 +796,7 @@ public class BaelzControls : MonoBehaviour
             GetComponent<BoxCollider2D>().enabled = true;
             curState = enemyState.dead;
             GetComponent<Hazard>().SetActive(false);
-            attackTimer = 1f;
+            attackTimer = 0.5f;
             GameObject.FindGameObjectWithTag("Hitbox").GetComponent<BoxCollider2D>().enabled = false;
 
             Debug.Log("Baelz defeated");
@@ -761,7 +805,11 @@ public class BaelzControls : MonoBehaviour
         //-----DEAD STATE-----
         else if (curState == enemyState.dead)
         {
-            if (grounded)
+            if (attackTimer > 0)
+            {
+                attackTimer -= Time.deltaTime;
+            }
+            else if (grounded)
             {
                 if (Mathf.Abs(rb.velocity.x) > 0.2f)
                 {
@@ -772,6 +820,7 @@ public class BaelzControls : MonoBehaviour
                     rb.velocity = Vector2.zero;
                     curState = enemyState.inCutscene;
                 }
+                anim.Play("Dead");
             }
         }
 
@@ -817,6 +866,13 @@ public class BaelzControls : MonoBehaviour
 
             attackStep = 1; //Reset attack step to 1 after each attack
             direction = (player.transform.position.x - transform.position.x > 0) ? 1 : -1;  //enemy faces towards player upon landing
+        }
+
+        //Animations
+        if(curState != enemyState.inCutscene)
+        {
+            anim.SetFloat("yVelocity", rb.velocity.y);
+            anim.SetBool("grounded", grounded);
         }
 
         transform.localScale = new Vector3(size * direction, size, size);   //flips sprite of this object and its children (like hurtbox)

@@ -884,7 +884,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "All characters belong to \xA92016 COVER Corp."
+  m_text: "Characters and music are associated with \xA92016 COVER Corp."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 21b2ed70af225a147bb10f24b27236f2, type: 2}
   m_sharedMaterial: {fileID: 4716557366949483657, guid: 21b2ed70af225a147bb10f24b27236f2, type: 2}

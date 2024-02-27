@@ -115,12 +115,18 @@ public class AudioManager : MonoBehaviour
 
 	public void ChangeBGMVolume(float value)
 	{
-		musicSource.volume = value/300;
+		if(musicSource != null)
+        {
+			musicSource.volume = value / 300;
+		}
 	}
 
 	public void ChangeSFXVolume(float value)
 	{
-		effectsSource.volume = value/100;
+		if(effectsSource != null)
+        {
+			effectsSource.volume = value / 100;
+		}
 	}
 
 	//Load variables on entering scene

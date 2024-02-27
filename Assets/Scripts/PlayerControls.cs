@@ -82,6 +82,7 @@ public class PlayerControls : MonoBehaviour
 
     private Animator anim;
     public float size;          // Determines size of player (used for sprite direction checking)
+    float deathTimer;
 
     void Awake()
     {
@@ -192,6 +193,8 @@ public class PlayerControls : MonoBehaviour
                     hitstunFlashTimer = hitstunFlashRate;
                     flashOn = false;
                     GetComponentInChildren<Shield>().ShieldOn(true, blockDuration);
+
+                    AudioManager.Instance.Play("Shield");
                 }
 
                 shooting = false;
@@ -252,21 +255,46 @@ public class PlayerControls : MonoBehaviour
         }
 
         //------DYING STATE-----
-        else if(curState == playerState.dead)
+        else if(curState == playerState.dying)
         {
-            //should work similar to baelz's death code
+            rb.velocity = Vector2.zero;
+            direction = (FindObjectOfType<BaelzControls>().transform.position.x - transform.position.x > 0) ? 1 : -1;
+            rb.AddForce(new Vector2(200f * -direction, 400f));
+            curState = playerState.dead;
+            hitbox.GetComponent<BoxCollider2D>().enabled = false;
+            anim.Play("HurtCutscene");
+
+            GameObject baelz = GameObject.FindGameObjectWithTag("Enemy");
+            baelz.GetComponent<Rigidbody2D>().gravityScale = 1;
+            baelz.GetComponent<Transform>().transform.eulerAngles = Vector2.zero;
+            baelz.GetComponent<BaelzControls>().curState = BaelzControls.enemyState.waitingForPlayer;
+            baelz.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
+            baelz.GetComponent<BoxCollider2D>().enabled = true;
+            deathTimer = 0.5f;
+
+            Debug.Log("Player defeated");
         }
 
         //------DEAD STATE-----
         else if (curState == playerState.dead)
         {
-            rb.velocity = Vector2.zero;
-            //Play death animation
-
-            //DEBUG: reset position to recent respawn point
-            transform.position = respawnPoint;
-            GetComponent<PlayerHealth>().FullHeal();
-            curState = playerState.moving;
+            if(deathTimer > 0)
+            {
+                deathTimer -= Time.deltaTime;
+            }
+            else if(grounded)
+            {
+                if (Mathf.Abs(rb.velocity.x) > 0.2f)
+                {
+                    rb.velocity = new Vector2(rb.velocity.x - (0.1f * -direction), rb.velocity.y);
+                }
+                else
+                {
+                    rb.velocity = Vector2.zero;
+                    curState = playerState.inCutscene;
+                }
+                anim.Play("Dead");
+            }
         }
 
         //------CUTSCENE STATE-------
