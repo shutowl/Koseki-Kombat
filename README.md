@@ -1,4 +1,5 @@
-Copy-pasted from the itch.io page:
+Copy-pasted from the itch.io page:  
+Link to game here: https://kshut.itch.io/koseki-kombat
 ----------------------------------------------------
 
 <p>Made within 14 days for the HoloJam #3 game jam!&nbsp;</p>
