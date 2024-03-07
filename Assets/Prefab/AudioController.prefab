@@ -45,7 +45,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 0.1
   m_Pitch: 1
   Loop: 0
@@ -267,10 +267,10 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 1fd8b1c82f1e1bd4c9e9ac87624eb7c0, type: 3}
   - name: Step10
     clip: {fileID: 8300000, guid: 0ca1c7d11c3dfcc4a951196a92cf1e5b, type: 3}
-  - name: Bullet1
-    clip: {fileID: 8300000, guid: 21a472500a829a646b067d35c2e318ad, type: 3}
-  - name: Bullet1
+  - name: Bullet
     clip: {fileID: 8300000, guid: 302eb2583c522fd459def5355dec5ec2, type: 3}
+  - name: BulletHit
+    clip: {fileID: 8300000, guid: 21a472500a829a646b067d35c2e318ad, type: 3}
   - name: Bullet2
     clip: {fileID: 8300000, guid: ed8c9eb1e61f8724985634cb23c3f07e, type: 3}
   - name: Bullet3
@@ -290,7 +290,7 @@ MonoBehaviour:
   - name: MenuMove
     clip: {fileID: 8300000, guid: f1340cb401b6ff64d943d2029621eab8, type: 3}
   - name: MenuSelect
-    clip: {fileID: 8300000, guid: d59f959140422f4418ddc458d800522d, type: 3}
+    clip: {fileID: 8300000, guid: 6d0f685e3587de44b96002a37ee58f2c, type: 3}
   - name: Beep
     clip: {fileID: 8300000, guid: 019103edd0f9ce742acad2915b2577b3, type: 3}
   - name: MenuStart
@@ -303,6 +303,26 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: f5499c1fced918c46aef47f34dc00193, type: 3}
   - name: Shield
     clip: {fileID: 8300000, guid: e7f8468f803c6ee41a52bfde20669bfc, type: 3}
+  - name: LoudStep1
+    clip: {fileID: 8300000, guid: abdc5418f6048634eaeeae6e5437a428, type: 3}
+  - name: LoudStep2
+    clip: {fileID: 8300000, guid: 47a96a0704b0b144f9467a943d58c72b, type: 3}
+  - name: LoudStep3
+    clip: {fileID: 8300000, guid: 38a3c41267a86724b8426687f045fa5a, type: 3}
+  - name: LoudStep4
+    clip: {fileID: 8300000, guid: 1bc5fd42b97a14446b9ada0f42a0dadd, type: 3}
+  - name: LoudStep5
+    clip: {fileID: 8300000, guid: 7b162c1aec3d806489cf889727789a10, type: 3}
+  - name: LoudStep6
+    clip: {fileID: 8300000, guid: d3a4fce64f4a99b49bfff3ce518734fc, type: 3}
+  - name: LoudStep7
+    clip: {fileID: 8300000, guid: 4f55654e8f92baf40aecdda5b2a4bea3, type: 3}
+  - name: LoudStep8
+    clip: {fileID: 8300000, guid: 06032bfc87aa9a54ca0bd8bd41e51b3a, type: 3}
+  - name: LoudStep9
+    clip: {fileID: 8300000, guid: 7a25387bb9ed49b4a9760d38e3a60f87, type: 3}
+  - name: LoudStep10
+    clip: {fileID: 8300000, guid: ac967a1343e36a04c9b6b0fcaf73948b, type: 3}
   music:
   - name: PSYCHO
     clip: {fileID: 8300000, guid: 81bda2ebf26543045bd98ff1c21b1ba0, type: 3}

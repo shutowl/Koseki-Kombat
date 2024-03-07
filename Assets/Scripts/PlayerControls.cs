@@ -70,7 +70,7 @@ public class PlayerControls : MonoBehaviour
     [Header("Other")]
     public ParticleSystem dust;
     bool paused = false;
-    bool feetClink;
+    int feetClink;
 
     //Store Input Values
     private InputActions inputActions;
@@ -83,6 +83,8 @@ public class PlayerControls : MonoBehaviour
     private Animator anim;
     public float size;          // Determines size of player (used for sprite direction checking)
     float deathTimer;
+
+    int difficulty;
 
     void Awake()
     {
@@ -102,7 +104,7 @@ public class PlayerControls : MonoBehaviour
         blockCharges[1] = GameObject.Find("Block2").GetComponent<Image>();
         blockCharges[2] = GameObject.Find("Block3").GetComponent<Image>();
 
-        feetClink = (PlayerPrefs.GetInt("option1") == 1) ? true : false;
+        feetClink = (PlayerPrefs.GetInt("option1"));
     }
 
     void Update()
@@ -196,8 +198,6 @@ public class PlayerControls : MonoBehaviour
 
                     AudioManager.Instance.Play("Shield");
                 }
-
-                shooting = false;
             }
 
             //Damaged IFrames after knockback
@@ -206,17 +206,32 @@ public class PlayerControls : MonoBehaviour
                 hitbox.GetComponent<BoxCollider2D>().enabled = true;
             }
 
-            //Shoot
-            if (inputActions.Player.Shoot.WasPressedThisFrame())
+            //-----SHOOTING-----
+            if (fireTimer > 0)
             {
-                shooting = true;
+                fireTimer -= Time.deltaTime;
             }
-            if (inputActions.Player.Shoot.WasReleasedThisFrame())
+            if (shooting)
             {
-                fireTimer = fireRate;
-                shooting = false;
-            }
+                if (fireTimer <= 0)
+                {
+                    //Fire Bullet
+                    GameObject tempBullet = Instantiate(bullet, transform.position, Quaternion.identity);
 
+                    if (aimUp)
+                    {
+                        tempBullet.GetComponent<PlayerBullet>().SetDirection(0, 1);
+                    }
+                    else
+                    {
+                        tempBullet.GetComponent<PlayerBullet>().SetDirection(direction, 0);
+                    }
+                    tempBullet.GetComponent<PlayerBullet>().damage = (int)((float)10 * Mathf.Clamp(difficulty / 3f, 1f, 10f));
+
+                    fireTimer = fireRate;
+                    AudioManager.Instance.PlayOneShot("Bullet");
+                }
+            }
         }
 
         //-----BLOCKING-------
@@ -304,31 +319,6 @@ public class PlayerControls : MonoBehaviour
             rb.velocity = Vector2.zero;
         }
 
-        //-----SHOOTING-----
-        if (fireTimer > 0)
-        {
-            fireTimer -= Time.deltaTime;
-        }
-        if (shooting)
-        {
-            if(fireTimer <= 0)
-            {
-                //Fire Bullet
-                GameObject tempBullet = Instantiate(bullet, transform.position, Quaternion.identity);
-
-                if (aimUp)
-                {
-                    tempBullet.GetComponent<PlayerBullet>().SetDirection(0, 1);
-                }
-                else
-                {
-                    tempBullet.GetComponent<PlayerBullet>().SetDirection(direction, 0);
-                }
-
-                fireTimer = fireRate;
-                AudioManager.Instance.PlayOneShot("Bullet3");
-            }
-        }
 
         //-----TIMERS-----
 
@@ -402,6 +392,17 @@ public class PlayerControls : MonoBehaviour
             aimUp = false;
         }
 
+        //Shoot
+        if (inputActions.Player.Shoot.WasPressedThisFrame())
+        {
+            shooting = true;
+        }
+        if (inputActions.Player.Shoot.WasReleasedThisFrame())
+        {
+            fireTimer = fireRate;
+            shooting = false;
+        }
+
         //------Animations-------
         /* STATES:
          * 0 = moving
@@ -411,7 +412,7 @@ public class PlayerControls : MonoBehaviour
          * 4 = dying
          * 5 = dead
          */
-        if(curState != playerState.inCutscene)
+        if (curState != playerState.inCutscene)
         {
             anim.SetInteger("curState", (int)curState);
             anim.SetFloat("xVelocity", Mathf.Abs(rb.velocity.x));
@@ -442,14 +443,14 @@ public class PlayerControls : MonoBehaviour
             rb.AddForce((Vector2.right * speed) * h); //Increases speed
             rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -maxSpeed, maxSpeed), rb.velocity.y); //Limits the player's speed
 
-            if(feetClink && grounded && h != 0)
+            if(feetClink > 0 && grounded && h != 0)
             {
                 stepTimer -= Time.deltaTime;
 
                 if(stepTimer <= 0)
                 {
-                    int step = Random.Range(1, 11);
-                    AudioManager.Instance.PlayOneShot("Step" + step);
+                    if(feetClink == 1) { AudioManager.Instance.Play("Step" + Random.Range(1, 11)); }
+                    else { AudioManager.Instance.Play("LoudStep" + Random.Range(1, 11)); }
                     stepTimer = stepRate;
                 }
             }
@@ -468,8 +469,18 @@ public class PlayerControls : MonoBehaviour
         hitstunFlashTimer = hitstunFlashRate;
         flashOn = false;
 
-        shooting = false;
         AudioManager.Instance.Play("Hurt");
+    }
+
+    public void SetDifficulty(int diff)
+    {
+        this.difficulty = diff;
+    }
+
+    public void SetIFramesCounter(float time)
+    {
+        damagediFramesCounter = time;
+        hitbox.GetComponent<BoxCollider2D>().enabled = false;
     }
 
 }

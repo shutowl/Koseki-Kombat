@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMPro;
 
 public class BaelzControls : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class BaelzControls : MonoBehaviour
     int attacksTillDice = 0; // attacks left till dice roll move
     public int direction = 1;
     int difficulty = 1;     // Difficulty is determined by dice roll
+    bool shield = false;
 
     float fireRateTimer;
     float angleOffset;
@@ -48,6 +50,11 @@ public class BaelzControls : MonoBehaviour
     Vector3 delayedPos = Vector2.zero;
 
     public GameObject timerSlider;
+    public GameObject hitVFX;
+    public float hitColorDuration = 0.1f;
+    float hitColorTimer;
+
+    public TextMeshProUGUI powerLevelText;
 
     Animator anim;
     int diceRolls;
@@ -69,6 +76,8 @@ public class BaelzControls : MonoBehaviour
 
         diceRolls = 0;
         totalDiff = 0;
+
+        powerLevelText = GameObject.Find("PowerLevelText").GetComponent<TextMeshProUGUI>();
     }
 
     // Update is called once per frame
@@ -136,7 +145,8 @@ public class BaelzControls : MonoBehaviour
                             timerSlider.GetComponent<Slider>().value = attackTimer;
                             timerSlider.GetComponent<RectTransform>().DOAnchorPosY(-15f, 1f).SetEase(Ease.OutCubic);
                             GetComponent<BoxCollider2D>().enabled = false;
-                            GetComponentInChildren<Shield>().ShieldOn(true, -1);
+                            shield = true;
+                            GetComponentInChildren<Shield>().ShieldOn(shield, -1);
 
                             attackStep = 4;
                         }
@@ -150,6 +160,8 @@ public class BaelzControls : MonoBehaviour
                         if (attackTimer <= 0 && !storedDie.GetComponent<Dice>().IsRolling())
                         {
                             difficulty = storedDie.GetComponent<Dice>().GetFace();
+                            player.GetComponent<PlayerControls>().SetDifficulty(difficulty);
+                            powerLevelText.text = "Power Level: " + difficulty;
                             totalDiff += difficulty;
                             Debug.Log("Next few attacks have a power of: " + difficulty);
                             storedDie.transform.DOMoveY(transform.position.y + 5, 0.5f).SetEase(Ease.InCubic);
@@ -170,7 +182,8 @@ public class BaelzControls : MonoBehaviour
                             Destroy(storedDie);
 
                             GetComponent<BoxCollider2D>().enabled = true;
-                            GetComponentInChildren<Shield>().ShieldOn(false, -1);
+                            shield = false;
+                            GetComponentInChildren<Shield>().ShieldOn(shield, -1);
 
                             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                             curState = enemyState.idle;
@@ -806,6 +819,8 @@ public class BaelzControls : MonoBehaviour
             attackTimer = 0.5f;
             GameObject.FindGameObjectWithTag("Hitbox").GetComponent<BoxCollider2D>().enabled = false;
 
+            player.GetComponent<PlayerControls>().SetIFramesCounter(5f);
+
             Debug.Log("Baelz defeated");
         }
 
@@ -875,8 +890,11 @@ public class BaelzControls : MonoBehaviour
             direction = (player.transform.position.x - transform.position.x > 0) ? 1 : -1;  //enemy faces towards player upon landing
         }
 
+        if (hitColorTimer > 0) { hitColorTimer -= Time.deltaTime; }
+        else GetComponent<SpriteRenderer>().color = Color.white;
+
         //Animations
-        if(curState != enemyState.inCutscene)
+        if (curState != enemyState.inCutscene)
         {
             anim.SetFloat("yVelocity", rb.velocity.y);
             anim.SetBool("grounded", grounded);
@@ -887,10 +905,15 @@ public class BaelzControls : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D col)
     {
-        if (attackNum != 0 && col.CompareTag("PlayerBullet"))
+        if (!shield && col.CompareTag("PlayerBullet"))
         {
             healthBar.TakeDamage(col.GetComponent<PlayerBullet>().damage);
+            AudioManager.Instance.Play("BulletHit");
             Destroy(col.gameObject);
+            GameObject vfx = Instantiate(hitVFX, col.transform.position, Quaternion.Euler(0, 0, Random.Range(0f, 360f)));
+            Destroy(vfx, 0.4f);
+            GetComponent<SpriteRenderer>().color = Color.red;
+            hitColorTimer = hitColorDuration;
         }
     }
 
@@ -903,5 +926,10 @@ public class BaelzControls : MonoBehaviour
     public string GetAverageDifficulty()
     {
         return (totalDiff / diceRolls).ToString("F2");
+    }
+
+    public int GetDifficulty()
+    {
+        return difficulty;
     }
 }

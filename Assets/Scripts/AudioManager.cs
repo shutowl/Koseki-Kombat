@@ -19,6 +19,8 @@ public class AudioManager : MonoBehaviour
 	// Initialize the singleton instance.
 	private void Awake()
 	{
+		ChangeBGMVolume(PlayerPrefs.GetInt("bgmVol"));
+		ChangeSFXVolume(PlayerPrefs.GetInt("sfxVol"));
 		// If there is not already an instance of SoundManager, set it to this.
 		if (Instance == null)
 		{
@@ -117,7 +119,7 @@ public class AudioManager : MonoBehaviour
 	{
 		if(musicSource != null)
         {
-			musicSource.volume = value / 300;
+			musicSource.volume = value / 75;
 		}
 	}
 
@@ -125,7 +127,7 @@ public class AudioManager : MonoBehaviour
 	{
 		if(effectsSource != null)
         {
-			effectsSource.volume = value / 100;
+			effectsSource.volume = value / 30;
 		}
 	}
 

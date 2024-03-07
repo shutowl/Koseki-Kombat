@@ -24,7 +24,7 @@ public class MenuController : MonoBehaviour
     public GameObject startButton;
 
     public TextMeshProUGUI[] rightOptions;
-    bool option1 = true;
+    int option1 = 0;
     int bgmVol;
     int sfxVol;
 
@@ -53,12 +53,13 @@ public class MenuController : MonoBehaviour
         gameStarting = false;
         screenFadeTimer = screenFadeDuration;
 
-        option1 = (PlayerPrefs.GetInt("option1", 1) == 1);
-        bgmVol = PlayerPrefs.GetInt("bgmVol", 4);
-        sfxVol = PlayerPrefs.GetInt("sfxVol", 6);
+        option1 = (PlayerPrefs.GetInt("option1", 1));
+        bgmVol = PlayerPrefs.GetInt("bgmVol", 3);
+        sfxVol = PlayerPrefs.GetInt("sfxVol", 5);
 
-
-        rightOptions[0].text = (option1) ? "On" : "Off";
+        if(option1 == 0) { rightOptions[0].text = "Off"; }
+        else if(option1 == 1) { rightOptions[0].text = "Normal"; }
+        else { rightOptions[0].text = "LOUD"; }
         rightOptions[1].text = "";
         rightOptions[2].text = "";
         for (int i = 0; i < bgmVol; i++)
@@ -83,9 +84,14 @@ public class MenuController : MonoBehaviour
             {
                 if(menuIndex == 0)
                 {
-                    option1 = !option1;
-                    rightOptions[0].text = (option1) ? "On" : "Off";
-                    AudioManager.Instance.PlayOneShot("Step" + Random.Range(1, 11));
+                    if(option1 == 1)
+                    {
+                        AudioManager.Instance.PlayOneShot("Step" + Random.Range(1, 11));
+                    }
+                    else if(option1 == 2)
+                    {
+                        AudioManager.Instance.PlayOneShot("LoudStep" + Random.Range(1, 11));
+                    }
                 }
                 else if(menuIndex == 3)
                 {
@@ -221,9 +227,17 @@ public class MenuController : MonoBehaviour
             {
                 if(menuIndex == 0)
                 {
-                    option1 = !option1;
-                    rightOptions[0].text = (option1) ? "On" : "Off";
-                    AudioManager.Instance.PlayOneShot("Step" + Random.Range(1, 11));
+                    if(option1 == 2)
+                    {
+                        option1 = 1;
+                        rightOptions[0].text = "Normal";
+                        AudioManager.Instance.PlayOneShot("Step" + Random.Range(1, 11));
+                    }
+                    else if(option1 == 1)
+                    {
+                        option1 = 0;
+                        rightOptions[0].text = "Off";
+                    }
                 }
                 if(menuIndex == 1)  //BGM Vol
                 {
@@ -255,9 +269,19 @@ public class MenuController : MonoBehaviour
             {
                 if (menuIndex == 0)
                 {
-                    option1 = !option1;
-                    rightOptions[0].text = (option1) ? "On" : "Off";
-                    AudioManager.Instance.PlayOneShot("Step" + Random.Range(1, 11));
+                    if(option1 == 0)
+                    {
+                        option1 = 1;
+                        rightOptions[0].text = "Normal";
+                        AudioManager.Instance.PlayOneShot("Step" + Random.Range(1, 11));
+
+                    }
+                    else if(option1 == 1)
+                    {
+                        option1 = 2;
+                        rightOptions[0].text = "LOUD";
+                        AudioManager.Instance.PlayOneShot("LoudStep" + Random.Range(1, 11));
+                    }
                 }
                 if (menuIndex == 1)  //BGM Vol
                 {
@@ -324,7 +348,7 @@ public class MenuController : MonoBehaviour
 
     private void OnDisable()
     {
-        PlayerPrefs.SetInt("option1", (option1) ? 1 : 0);
+        PlayerPrefs.SetInt("option1", option1);
         PlayerPrefs.SetInt("bgmVol", bgmVol);
         PlayerPrefs.SetInt("sfxVol", sfxVol);
     }

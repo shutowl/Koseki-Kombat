@@ -50,6 +50,11 @@ public class CutsceneController : MonoBehaviour
     float battleTimer;
     public Image screenFade;
 
+    public GameObject controlsText;
+    public GameObject skipCutsceneWindow;
+    public GameObject arrow;
+    int skipCutsceneIndex = 0;
+
     private InputActions inputActions;
 
     void Start()
@@ -86,15 +91,58 @@ public class CutsceneController : MonoBehaviour
         {
             if(player.transform.position.x >= playerEndPos.x)
             {
-                scene = 1;
+                scene = 100;
                 sceneTimer = 1.25f;
 
                 dialogueText.text = "";
                 speakerText.text = "Koseki Bijou";
                 portrait.sprite = portraits[0];
-                ShowDialogue();
 
                 player.GetComponent<Animator>().Play("Idle");
+            }
+        }
+        //Skip cutscene prompt
+        else if(scene == 100)
+        {
+            skipCutsceneWindow.GetComponent<RectTransform>().DOAnchorPosY(0, 0.5f).SetEase(Ease.OutCubic);
+            scene = 101;
+        }
+        else if(scene == 101)
+        {
+            if (inputActions.UI.Left.WasPressedThisFrame())
+            {
+                skipCutsceneIndex = 0;
+                arrow.GetComponent<RectTransform>().anchoredPosition = new Vector2(-154, -50);
+                AudioManager.Instance.Play("MenuMove");
+            }
+            if (inputActions.UI.Right.WasPressedThisFrame())
+            {
+                skipCutsceneIndex = 1;
+                arrow.GetComponent<RectTransform>().anchoredPosition = new Vector2(30, -50);
+                AudioManager.Instance.Play("MenuMove");
+            }
+            if (inputActions.UI.Confirm.WasPressedThisFrame())
+            {
+                if (skipCutsceneIndex == 0)  //Yes
+                {
+                    skipCutsceneWindow.GetComponent<RectTransform>().DOAnchorPosY(-1000, 0.5f).SetEase(Ease.OutCubic);
+                    sceneTimer = 0f;
+                    Instantiate(explosion, baeSpawnPoint.transform.position, Quaternion.identity);
+                    baelzPrefab = Instantiate(baelz, baeSpawnPoint.transform.position, Quaternion.identity);
+                    baelzPrefab.GetComponent<BaelzControls>().direction = -1;
+                    AudioManager.Instance.PlayMusic("PSYCHO");
+                    ShowUI();
+
+                    scene = 12;
+                }
+                else //No
+                {
+                    sceneTimer = 1.25f;
+                    skipCutsceneWindow.GetComponent<RectTransform>().DOAnchorPosY(-1000, 0.5f).SetEase(Ease.OutCubic);
+                    ShowDialogue();
+                    scene = 1;
+                }
+                AudioManager.Instance.Play("MenuSelect");
             }
         }
         //Wait for dialogue to show and setup next dialogue line
@@ -255,7 +303,7 @@ public class CutsceneController : MonoBehaviour
             {
                 if (nextLine.Equals(""))
                 {
-                    nextLine = "The world will soon plummet into chaos,****** with you as its last beacon of hope.";
+                    nextLine = "But you're too late***.***.***.********* The dice's power will soon consume the world!";
                     textSpeed = 0.05f;
                     textTimer = 0;
                     dialogueText.text = "";
@@ -271,7 +319,7 @@ public class CutsceneController : MonoBehaviour
                 }
             }
         }
-        //Bae says "The world will soon plummet into chaos, with you as its last beacon of hope"
+        //Bae says "But you're too late... The dice's power will soon consume the world!"
         else if (scene == 8)
         {
             textTimer -= Time.deltaTime;
@@ -308,7 +356,7 @@ public class CutsceneController : MonoBehaviour
                 }
             }
         }
-        //Bijou says "Heh, just try it! I could care less what happens to the world."
+        //Bijou says "Heh, I could care less what happens to the world."
         else if (scene == 9)
         {
             textTimer -= Time.deltaTime;
@@ -738,6 +786,8 @@ public class CutsceneController : MonoBehaviour
         DOTmoveDialogue = DOTween.Sequence();
         RectTransform dialogueRect = dialogueWindow.GetComponent<RectTransform>();
         DOTmoveDialogue.Append(dialogueRect.DOAnchorPosY(Mathf.Abs(dialogueRect.anchoredPosition.y), 1f).SetEase(Ease.OutCubic));
+        RectTransform controlsRect = controlsText.GetComponent<RectTransform>();
+        controlsRect.DOAnchorPosY(-Mathf.Abs(controlsRect.anchoredPosition.y), 1f).SetEase(Ease.OutCubic);
     }
 
     void HideDialogue()
@@ -745,5 +795,7 @@ public class CutsceneController : MonoBehaviour
         DOTmoveDialogue = DOTween.Sequence();
         RectTransform dialogueRect = dialogueWindow.GetComponent<RectTransform>();
         DOTmoveDialogue.Append(dialogueRect.DOAnchorPosY(-Mathf.Abs(dialogueRect.anchoredPosition.y), 1f).SetEase(Ease.OutCubic));
+        RectTransform controlsRect = controlsText.GetComponent<RectTransform>();
+        controlsRect.DOAnchorPosY(Mathf.Abs(controlsRect.anchoredPosition.y), 1f).SetEase(Ease.OutCubic);
     }
 }

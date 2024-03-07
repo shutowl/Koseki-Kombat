@@ -313,6 +313,9 @@ MonoBehaviour:
   grounded: 0
   dangerIndicator: {fileID: 9082269498407720087, guid: 5682a4323fe9b554999d4bf0f252c106, type: 3}
   timerSlider: {fileID: 1896556606208538746, guid: 623c02b6b792026458dc0e92ad67e966, type: 3}
+  hitVFX: {fileID: 4554706727474095934, guid: 93c534258c4dda74b9eb0bd2a7d48c3f, type: 3}
+  hitColorDuration: 0.05
+  powerLevelText: {fileID: 7863740262126287641, guid: 636f7ce1bc3342340b93aae617bf23d9, type: 3}
 --- !u!114 &9187666631518033989
 MonoBehaviour:
   m_ObjectHideFlags: 0
